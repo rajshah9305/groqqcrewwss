@@ -115,44 +115,44 @@ export default function Dashboard() {
     <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="container py-4 flex items-center justify-between">
-          <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center">
-                <Bot className="w-6 h-6 text-white" />
+        <div className="container py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
+          <Link href="/" className="min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 cursor-pointer">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-orange-500 flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-black">
+              <span className="text-base sm:text-xl font-bold text-black truncate">
                 {APP_TITLE}
               </span>
             </div>
           </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Welcome</span>
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <span className="text-xs sm:text-sm text-gray-600 hidden sm:inline">Welcome</span>
           </div>
         </div>
       </nav>
 
-      <div className="container py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-black">
+      <div className="container py-4 sm:py-6 lg:py-8 px-4">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-black">
             NLP Dashboard
           </h1>
-          <p className="text-gray-600">Create and manage your AI-powered NLP tasks</p>
+          <p className="text-sm sm:text-base text-gray-600">Create and manage your AI-powered NLP tasks</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Task Creation Form */}
           <div className="lg:col-span-1">
-            <Card className="border-gray-200 bg-white sticky top-24">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-orange-500" />
+            <Card className="border-gray-200 bg-white lg:sticky lg:top-24">
+              <CardHeader className="px-4 sm:px-6">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 shrink-0" />
                   Create New Task
                 </CardTitle>
-                <CardDescription>Configure and submit your NLP task</CardDescription>
+                <CardDescription className="text-sm">Configure and submit your NLP task</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
+              <CardContent className="px-4 sm:px-6">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                   <div>
                     <Label htmlFor="title">Task Title</Label>
                     <Input
@@ -195,7 +195,7 @@ export default function Dashboard() {
                   </div>
 
                   <div>
-                    <Label htmlFor="inputData">Input Text</Label>
+                    <Label htmlFor="inputData" className="text-sm">Input Text</Label>
                     <Textarea
                       id="inputData"
                       value={inputData}
@@ -203,6 +203,7 @@ export default function Dashboard() {
                       placeholder="Paste your text here..."
                       rows={6}
                       required
+                      className="text-sm resize-y min-h-[120px]"
                     />
                   </div>
 
@@ -221,7 +222,7 @@ export default function Dashboard() {
                   </div>
 
                   <div>
-                    <Label htmlFor="temperature">Temperature: {temperature}</Label>
+                    <Label htmlFor="temperature" className="text-sm">Temperature: {temperature}</Label>
                     <input
                       id="temperature"
                       type="range"
@@ -229,7 +230,7 @@ export default function Dashboard() {
                       max="100"
                       value={temperature}
                       onChange={(e) => setTemperature(Number(e.target.value))}
-                      className="w-full"
+                      className="w-full h-2"
                     />
                   </div>
 
@@ -292,17 +293,17 @@ export default function Dashboard() {
                       className="border-gray-200 bg-white hover:shadow-lg transition-shadow cursor-pointer"
                       onClick={() => setSelectedTask(task.id)}
                     >
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
+                      <CardHeader className="px-4 sm:px-6">
+                        <div className="flex items-start justify-between gap-2 sm:gap-4">
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
                               {getStatusIcon(task.status)}
-                              <CardTitle className="text-lg">{task.title}</CardTitle>
+                              <CardTitle className="text-base sm:text-lg truncate">{task.title}</CardTitle>
                             </div>
-                            <CardDescription>{task.description}</CardDescription>
+                            <CardDescription className="text-sm line-clamp-2">{task.description}</CardDescription>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {getStatusBadge(task.status)}
+                          <div className="flex items-center gap-2 shrink-0">
+                            <div className="hidden sm:block">{getStatusBadge(task.status)}</div>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -310,20 +311,22 @@ export default function Dashboard() {
                                 e.stopPropagation();
                                 deleteTask.mutate({ id: task.id });
                               }}
+                              className="h-8 w-8 p-0"
                             >
                               <Trash2 className="w-4 h-4 text-red-600" />
                             </Button>
                           </div>
                         </div>
+                        <div className="sm:hidden mt-2">{getStatusBadge(task.status)}</div>
                       </CardHeader>
-                      <CardContent>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <CardContent className="px-4 sm:px-6">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
                           <span className="capitalize">{task.taskType.replace("_", " ")}</span>
-                          <span>•</span>
+                          <span className="hidden sm:inline">•</span>
                           <span className="capitalize">{task.priority} priority</span>
                           {task.processingTime && (
                             <>
-                              <span>•</span>
+                              <span className="hidden sm:inline">•</span>
                               <span>{(task.processingTime / 1000).toFixed(2)}s</span>
                             </>
                           )}
@@ -343,27 +346,27 @@ export default function Dashboard() {
               <TabsContent value="details">
                 {selectedTaskData && (
                   <Card className="border-gray-200 bg-white">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-2xl mb-2">{selectedTaskData.title}</CardTitle>
-                          <CardDescription>{selectedTaskData.description}</CardDescription>
+                    <CardHeader className="px-4 sm:px-6">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
+                        <div className="min-w-0 flex-1">
+                          <CardTitle className="text-xl sm:text-2xl mb-2 break-words">{selectedTaskData.title}</CardTitle>
+                          <CardDescription className="text-sm break-words">{selectedTaskData.description}</CardDescription>
                         </div>
-                        {getStatusBadge(selectedTaskData.status)}
+                        <div className="shrink-0">{getStatusBadge(selectedTaskData.status)}</div>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
                       <div>
                         <Label className="text-sm font-semibold text-gray-700">Input</Label>
-                        <div className="mt-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                          <pre className="whitespace-pre-wrap text-sm">{selectedTaskData.inputData}</pre>
+                        <div className="mt-2 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200 overflow-x-auto">
+                          <pre className="whitespace-pre-wrap text-xs sm:text-sm break-words">{selectedTaskData.inputData}</pre>
                         </div>
                       </div>
 
                       {selectedTaskData.outputData && (
                         <div>
                           <Label className="text-sm font-semibold text-gray-700">Output</Label>
-                          <div className="mt-2 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                          <div className="mt-2 p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-200 overflow-x-auto">
                             <Streamdown>{selectedTaskData.outputData}</Streamdown>
                           </div>
                         </div>
@@ -372,13 +375,13 @@ export default function Dashboard() {
                       {selectedTaskData.errorMessage && (
                         <div>
                           <Label className="text-sm font-semibold text-red-700">Error</Label>
-                          <div className="mt-2 p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
+                          <div className="mt-2 p-3 sm:p-4 bg-red-50 rounded-lg border border-red-200 text-red-700 text-xs sm:text-sm break-words">
                             {selectedTaskData.errorMessage}
                           </div>
                         </div>
                       )}
 
-                      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4 border-t border-gray-200">
                         <div>
                           <Label className="text-xs text-gray-500">Task Type</Label>
                           <p className="capitalize">{selectedTaskData.taskType.replace("_", " ")}</p>
