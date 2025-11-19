@@ -1,4 +1,4 @@
-# rajai platform
+# RAJ AI PLATFORM
 
 A production-ready web application for advanced Natural Language Processing powered by CrewAI multi-agent collaboration and Groq API integration.
 
