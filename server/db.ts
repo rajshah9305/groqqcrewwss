@@ -30,7 +30,8 @@ export async function getDb() {
   if (!_db) {
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
-      console.warn("[Database] DATABASE_URL environment variable is not set");
+      console.error("[Database] ❌ DATABASE_URL environment variable is not set");
+      console.error("[Database] Please set DATABASE_URL in your Vercel environment variables");
       return null;
     }
     
@@ -44,15 +45,41 @@ export async function getDb() {
         connectionString = connectionString.replace(/^['"]|['"]$/g, '');
       }
       
+      // Determine SSL requirement
+      const requiresSSL = connectionString.includes('sslmode=require') || 
+                         connectionString.includes('neon.tech') ||
+                         connectionString.includes('supabase.co');
+      
       const pool = new Pool({
         connectionString: connectionString,
-        ssl: connectionString.includes('sslmode=require') ? { rejectUnauthorized: false } : undefined,
+        ssl: requiresSSL ? { rejectUnauthorized: false } : undefined,
+        max: 10, // Limit connections for serverless
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
       });
+      
+      // Test the connection
+      try {
+        const client = await pool.connect();
+        await client.query('SELECT 1');
+        client.release();
+      } catch (testError) {
+        console.error("[Database] ❌ Connection test failed:", testError);
+        pool.end();
+        throw testError;
+      }
+      
       _db = drizzle(pool);
-      console.log("[Database] Connected successfully");
+      console.log("[Database] ✓ Connected successfully to database");
     } catch (error) {
-      console.error("[Database] Failed to connect:", error);
+      console.error("[Database] ❌ Failed to connect to database:", error);
+      if (error instanceof Error) {
+        console.error("[Database] Error message:", error.message);
+        console.error("[Database] Error code:", (error as any).code);
+      }
       _db = null;
+      // Don't throw - return null to allow graceful degradation
+      return null;
     }
   }
   return _db;

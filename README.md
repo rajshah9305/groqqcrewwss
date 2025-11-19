@@ -247,10 +247,30 @@ pnpm db:push
 
 This project is configured for Vercel deployment:
 
-1. Push your code to GitHub
-2. Import the repository in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
+1. **Push your code to GitHub**
+2. **Import the repository in Vercel**
+3. **Set up the database schema** (run once before first deployment):
+   ```bash
+   # Set DATABASE_URL in your environment, then run:
+   pnpm db:push
+   ```
+   Or use the Vercel CLI:
+   ```bash
+   vercel env pull .env.local
+   pnpm db:push
+   ```
+4. **Add environment variables in Vercel dashboard**:
+   - `DATABASE_URL` - Your PostgreSQL connection string
+   - `GROQ_API_KEY` - Your Groq API key
+   - `OPENAI_API_KEY` - Set to `dummy-key-to-disable-openai`
+   - `NODE_ENV` - Set to `production`
+5. **Deploy** - Vercel will automatically build and deploy
+
+**Important Notes:**
+- The database schema must be set up before the first deployment
+- After deployment, verify the database connection at: `https://your-app.vercel.app/api/health`
+- The default user is automatically created on first request
+- Database migrations should be run manually using `pnpm db:push` when schema changes
 
 The `vercel.json` file is already configured for optimal deployment.
 

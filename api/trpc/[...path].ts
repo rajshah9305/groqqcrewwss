@@ -1,21 +1,41 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "../../server/routers";
 import { createContext } from "../../server/_core/context";
-import { ensureDefaultUser } from "../../server/db";
+import { ensureDefaultUser, getDb } from "../../server/db";
 
 // Ensure default user exists (only runs once per serverless function instance)
 let defaultUserEnsured = false;
+let dbConnectionTested = false;
 
 // Vercel serverless function wrapper for tRPC
 export default async function handler(req: Request): Promise<Response> {
-  // Ensure default user exists on first request
-  if (!defaultUserEnsured) {
+  // Test database connection on first request
+  if (!dbConnectionTested) {
     try {
-      await ensureDefaultUser();
-      defaultUserEnsured = true;
+      const db = await getDb();
+      if (db) {
+        console.log("[Serverless] ✓ Database connection verified");
+        dbConnectionTested = true;
+        
+        // Ensure default user exists
+        if (!defaultUserEnsured) {
+          try {
+            await ensureDefaultUser();
+            console.log("[Serverless] ✓ Default user ensured");
+            defaultUserEnsured = true;
+          } catch (error) {
+            console.error("[Serverless] Failed to ensure default user:", error);
+            // Continue anyway - the user might already exist
+          }
+        }
+      } else {
+        console.error("[Serverless] ❌ Database connection failed - DATABASE_URL may be missing or invalid");
+      }
     } catch (error) {
-      console.error("[Serverless] Failed to ensure default user:", error);
-      // Continue anyway - the user might already exist
+      console.error("[Serverless] ❌ Database connection error:", error);
+      if (error instanceof Error) {
+        console.error("[Serverless] Error message:", error.message);
+      }
     }
   }
 
