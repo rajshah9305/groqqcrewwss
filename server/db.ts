@@ -2,12 +2,12 @@ import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 const { Pool } = pg;
-import { 
-  InsertUser, 
+import {
+  InsertUser,
   User,
-  users, 
-  nlpTasks, 
-  InsertNlpTask, 
+  users,
+  nlpTasks,
+  InsertNlpTask,
   NlpTask,
   agentConfigs,
   InsertAgentConfig,
@@ -228,16 +228,9 @@ export async function getDb() {
   if (!_db) {
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
-      // In production/Vercel, we want clear error messages
-      if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
-        console.error("[Database] ❌ DATABASE_URL environment variable is not set");
-        console.error("[Database] Please set DATABASE_URL in your Vercel environment variables");
-      } else {
-        // In development, fall back to in-memory
-        console.warn("[Database] DATABASE_URL environment variable is not set");
-        forceInMemoryDb = true;
-        logInMemoryUsage("missing DATABASE_URL");
-      }
+      console.warn("[Database] DATABASE_URL environment variable is not set");
+      forceInMemoryDb = true;
+      logInMemoryUsage("missing DATABASE_URL");
       return null;
     }
     
@@ -248,7 +241,7 @@ export async function getDb() {
         // Remove 'psql ' prefix if present
         connectionString = connectionString.substring(5).trim();
         // Remove quotes if present
-        connectionString = connectionString.replace(/^['"]|['"]$/g, '');
+        connectionString = connectionString.replace(/^['"]|['"]$/g, "");
       }
       
       // Determine SSL requirement
@@ -257,11 +250,10 @@ export async function getDb() {
                          connectionString.includes('supabase.co');
       
       const pool = new Pool({
-        connectionString: connectionString,
-        ssl: requiresSSL ? { rejectUnauthorized: false } : undefined,
-        max: 10, // Limit connections for serverless
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 10000,
+        connectionString,
+        ssl: connectionString.includes("sslmode=require")
+          ? { rejectUnauthorized: false }
+          : undefined,
       });
       
       // Test the connection
@@ -293,16 +285,8 @@ export async function getDb() {
         }
       }
       _db = null;
-      
-      // In production/Vercel, don't fall back to in-memory
-      if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
-        return null;
-      } else {
-        // In development, fall back to in-memory
-        forceInMemoryDb = true;
-        logInMemoryUsage("connection failure");
-        return null;
-      }
+      forceInMemoryDb = true;
+      logInMemoryUsage("connection failure");
     }
   }
   return _db;
