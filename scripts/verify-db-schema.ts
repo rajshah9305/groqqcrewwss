@@ -37,7 +37,8 @@ async function verifySchema() {
         const result = await db.execute(
           sql`SELECT typname FROM pg_type WHERE typname = ${enumType}`
         );
-        if (result.rows.length === 0) {
+        const rows = result.rows as Array<{ typname: string }>;
+        if (rows.length === 0) {
           console.error(`[DB Verify] ❌ Enum type '${enumType}' not found in database`);
           console.error(`[DB Verify] Please run: pnpm db:push`);
           process.exit(1);
@@ -66,7 +67,8 @@ async function verifySchema() {
         const result = await db.execute(
           sql`SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename = ${table}`
         );
-        if (result.rows.length === 0) {
+        const rows = result.rows as Array<{ tablename: string }>;
+        if (rows.length === 0) {
           console.error(`[DB Verify] ❌ Table '${table}' not found in database`);
           console.error(`[DB Verify] Please run: pnpm db:push`);
           process.exit(1);
@@ -85,7 +87,7 @@ async function verifySchema() {
       const result = await db.execute(
         sql`SELECT enumlabel FROM pg_enum WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'taskType') ORDER BY enumsortorder`
       );
-      const enumValues = result.rows.map((row: any) => row.enumlabel);
+      const enumValues = (result.rows as Array<{ enumlabel: string }>).map((row) => row.enumlabel);
       const expectedValues = ["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"];
       
       console.log(`[DB Verify] Found enum values: ${enumValues.join(", ")}`);

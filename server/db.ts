@@ -1,4 +1,4 @@
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 const { Pool } = pg;
@@ -22,7 +22,6 @@ import {
   InsertSavedResult,
   SavedResult,
 } from "../drizzle/schema";
-import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let forceInMemoryDb = false;
@@ -289,7 +288,9 @@ export async function getDb() {
       console.error("[Database] ❌ Failed to connect to database:", error);
       if (error instanceof Error) {
         console.error("[Database] Error message:", error.message);
-        console.error("[Database] Error code:", (error as any).code);
+        if ('code' in error && typeof error.code === 'string') {
+          console.error("[Database] Error code:", error.code);
+        }
       }
       _db = null;
       
