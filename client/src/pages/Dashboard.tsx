@@ -89,7 +89,7 @@ export default function Dashboard() {
       case "completed":
         return <CheckCircle2 className="w-4 h-4 text-green-600" />;
       case "processing":
-        return <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />;
+        return <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />;
       case "failed":
         return <XCircle className="w-4 h-4 text-red-600" />;
       default:
@@ -100,7 +100,7 @@ export default function Dashboard() {
   const getStatusBadge = (status: string) => {
     const variants: Record<string, string> = {
       completed: "bg-green-100 text-green-700 border-green-200",
-      processing: "bg-blue-100 text-blue-700 border-blue-200",
+      processing: "bg-orange-100 text-orange-700 border-orange-200",
       failed: "bg-red-100 text-red-700 border-red-200",
       pending: "bg-gray-100 text-gray-700 border-gray-200",
     };
@@ -112,16 +112,16 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="border-b border-violet-200/50 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="container py-4 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center">
                 <Bot className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold text-black">
                 {APP_TITLE}
               </span>
             </div>
@@ -134,7 +134,7 @@ export default function Dashboard() {
 
       <div className="container py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 text-black">
             NLP Dashboard
           </h1>
           <p className="text-gray-600">Create and manage your AI-powered NLP tasks</p>
@@ -143,10 +143,10 @@ export default function Dashboard() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Task Creation Form */}
           <div className="lg:col-span-1">
-            <Card className="border-violet-200 bg-white/80 backdrop-blur-sm sticky top-24">
+            <Card className="border-gray-200 bg-white sticky top-24">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-violet-600" />
+                  <Sparkles className="w-5 h-5 text-orange-500" />
                   Create New Task
                 </CardTitle>
                 <CardDescription>Configure and submit your NLP task</CardDescription>
@@ -248,7 +248,7 @@ export default function Dashboard() {
 
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700"
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                     disabled={createTask.isPending || executeTask.isPending}
                   >
                     {createTask.isPending || executeTask.isPending ? (
@@ -271,7 +271,7 @@ export default function Dashboard() {
           {/* Task List and Details */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="tasks" className="space-y-4">
-              <TabsList className="bg-white/80 backdrop-blur-sm">
+              <TabsList className="bg-white">
                 <TabsTrigger value="tasks">All Tasks</TabsTrigger>
                 <TabsTrigger value="details" disabled={!selectedTask}>
                   Task Details
@@ -280,16 +280,16 @@ export default function Dashboard() {
 
               <TabsContent value="tasks" className="space-y-4">
                 {tasksLoading ? (
-                  <Card className="border-violet-200 bg-white/80 backdrop-blur-sm">
+                  <Card className="border-gray-200 bg-white">
                     <CardContent className="py-12 text-center">
-                      <Loader2 className="w-8 h-8 animate-spin mx-auto text-violet-600" />
+                      <Loader2 className="w-8 h-8 animate-spin mx-auto text-orange-500" />
                     </CardContent>
                   </Card>
                 ) : tasks && tasks.length > 0 ? (
                   tasks.map((task) => (
                     <Card
                       key={task.id}
-                      className="border-violet-200 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow cursor-pointer"
+                      className="border-gray-200 bg-white hover:shadow-lg transition-shadow cursor-pointer"
                       onClick={() => setSelectedTask(task.id)}
                     >
                       <CardHeader>
@@ -332,7 +332,7 @@ export default function Dashboard() {
                     </Card>
                   ))
                 ) : (
-                  <Card className="border-violet-200 bg-white/80 backdrop-blur-sm">
+                  <Card className="border-gray-200 bg-white">
                     <CardContent className="py-12 text-center text-gray-600">
                       No tasks yet. Create your first task to get started!
                     </CardContent>
@@ -342,7 +342,7 @@ export default function Dashboard() {
 
               <TabsContent value="details">
                 {selectedTaskData && (
-                  <Card className="border-violet-200 bg-white/80 backdrop-blur-sm">
+                  <Card className="border-gray-200 bg-white">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -363,7 +363,7 @@ export default function Dashboard() {
                       {selectedTaskData.outputData && (
                         <div>
                           <Label className="text-sm font-semibold text-gray-700">Output</Label>
-                          <div className="mt-2 p-4 bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-lg border border-violet-200">
+                          <div className="mt-2 p-4 bg-orange-50 rounded-lg border border-orange-200">
                             <Streamdown>{selectedTaskData.outputData}</Streamdown>
                           </div>
                         </div>

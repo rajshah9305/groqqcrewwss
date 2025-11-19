@@ -8,15 +8,15 @@ import { Link } from "wouter";
 export default function Home() {
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="border-b border-violet-200/50 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
         <div className="container py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center">
               <Bot className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-black">
               {APP_TITLE}
             </span>
           </div>
@@ -25,7 +25,7 @@ export default function Home() {
               <Button variant="ghost">Dashboard</Button>
             </Link>
             <Link href="/dashboard">
-              <Button className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700">
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white">
                 Get Started
               </Button>
             </Link>
@@ -36,22 +36,22 @@ export default function Home() {
       {/* Hero Section */}
       <section className="container py-20 text-center">
         <div className="max-w-4xl mx-auto">
-          <Badge className="mb-6 bg-violet-100 text-violet-700 hover:bg-violet-200 border-violet-200">
+          <Badge className="mb-6 bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200">
             <Sparkles className="w-3 h-3 mr-1" />
             Powered by CrewAI & Groq
           </Badge>
-          <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-6xl font-bold mb-6 text-black leading-tight">
             Advanced NLP Processing
             <br />
             with Multi-Agent AI
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
             Harness the power of collaborative AI agents to transform your text into actionable insights.
             Real-time streaming, advanced analysis, and production-ready results.
           </p>
           <div className="flex gap-4 justify-center">
             <Link href="/dashboard">
-              <Button size="lg" className="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-lg px-8">
+              <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8">
                 Start Processing
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
@@ -70,9 +70,9 @@ export default function Home() {
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="border-violet-200 hover:shadow-xl transition-shadow bg-white/80 backdrop-blur-sm">
+          <Card className="border-gray-200 hover:shadow-xl transition-shadow bg-white">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-lg bg-orange-500 flex items-center justify-center mb-4">
                 <FileText className="w-6 h-6 text-white" />
               </div>
               <CardTitle>Text Summarization</CardTitle>
@@ -82,9 +82,9 @@ export default function Home() {
             </CardHeader>
           </Card>
 
-          <Card className="border-fuchsia-200 hover:shadow-xl transition-shadow bg-white/80 backdrop-blur-sm">
+          <Card className="border-gray-200 hover:shadow-xl transition-shadow bg-white">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-fuchsia-500 to-pink-500 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-lg bg-orange-500 flex items-center justify-center mb-4">
                 <BarChart3 className="w-6 h-6 text-white" />
               </div>
               <CardTitle>Data Analysis</CardTitle>
@@ -94,9 +94,9 @@ export default function Home() {
             </CardHeader>
           </Card>
 
-          <Card className="border-purple-200 hover:shadow-xl transition-shadow bg-white/80 backdrop-blur-sm">
+          <Card className="border-gray-200 hover:shadow-xl transition-shadow bg-white">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-lg bg-orange-500 flex items-center justify-center mb-4">
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <CardTitle>Research & Analysis</CardTitle>
@@ -106,9 +106,9 @@ export default function Home() {
             </CardHeader>
           </Card>
 
-          <Card className="border-indigo-200 hover:shadow-xl transition-shadow bg-white/80 backdrop-blur-sm">
+          <Card className="border-gray-200 hover:shadow-xl transition-shadow bg-white">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-lg bg-orange-500 flex items-center justify-center mb-4">
                 <Wand2 className="w-6 h-6 text-white" />
               </div>
               <CardTitle>Content Generation</CardTitle>
@@ -118,9 +118,9 @@ export default function Home() {
             </CardHeader>
           </Card>
 
-          <Card className="border-blue-200 hover:shadow-xl transition-shadow bg-white/80 backdrop-blur-sm">
+          <Card className="border-gray-200 hover:shadow-xl transition-shadow bg-white">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-lg bg-orange-500 flex items-center justify-center mb-4">
                 <Code className="w-6 h-6 text-white" />
               </div>
               <CardTitle>Code Generation</CardTitle>
@@ -130,9 +130,9 @@ export default function Home() {
             </CardHeader>
           </Card>
 
-          <Card className="border-cyan-200 hover:shadow-xl transition-shadow bg-white/80 backdrop-blur-sm">
+          <Card className="border-gray-200 hover:shadow-xl transition-shadow bg-white">
             <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-lg bg-orange-500 flex items-center justify-center mb-4">
                 <Languages className="w-6 h-6 text-white" />
               </div>
               <CardTitle>Translation</CardTitle>
@@ -146,10 +146,10 @@ export default function Home() {
 
       {/* Live Processing Demo */}
       <section className="container py-16">
-        <Card className="border-violet-200 bg-gradient-to-br from-white to-violet-50/30 backdrop-blur-sm">
+        <Card className="border-gray-200 bg-white">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center">
                 <Zap className="w-8 h-8 text-white" />
               </div>
             </div>
@@ -177,13 +177,13 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="container py-20 text-center">
-        <div className="max-w-3xl mx-auto bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl p-12 text-white">
+        <div className="max-w-3xl mx-auto bg-orange-500 rounded-2xl p-12 text-white">
           <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Workflow?</h2>
-          <p className="text-xl mb-8 text-violet-100">
+          <p className="text-xl mb-8 text-orange-50">
             Join thousands of users leveraging AI-powered NLP processing for their projects
           </p>
           <Link href="/dashboard">
-            <Button size="lg" variant="secondary" className="bg-white text-violet-600 hover:bg-violet-50 text-lg px-8">
+            <Button size="lg" variant="secondary" className="bg-white text-orange-600 hover:bg-orange-50 text-lg px-8">
               Get Started Now
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
@@ -192,7 +192,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-violet-200 bg-white/80 backdrop-blur-sm py-8">
+      <footer className="border-t border-gray-200 bg-white py-8">
         <div className="container text-center text-gray-600">
           <p>© 2025 {APP_TITLE}. Powered by CrewAI and Groq.</p>
         </div>
