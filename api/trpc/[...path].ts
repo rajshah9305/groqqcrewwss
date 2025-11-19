@@ -7,6 +7,7 @@ export default async function handler(req: Request): Promise<Response> {
   return fetchRequestHandler({
     router: appRouter,
     req,
+    endpoint: "/api/trpc",
     createContext: async () => {
       // Create a minimal context for Vercel serverless
       return {
