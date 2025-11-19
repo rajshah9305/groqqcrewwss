@@ -422,7 +422,50 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
     // Ensure default user exists before creating task
     await ensureDefaultUser();
     
-    const result = await db.insert(nlpTasks).values(task).returning();
+    // Validate task data before insertion
+    const validatedTask = {
+      userId: task.userId,
+      title: task.title?.trim() || "",
+      description: task.description?.trim() || "",
+      taskType: task.taskType,
+      status: task.status || "pending",
+      priority: task.priority || "medium",
+      inputData: task.inputData?.trim() || "",
+      outputData: task.outputData || null,
+      agentConfig: task.agentConfig || null,
+      errorMessage: task.errorMessage || null,
+      processingTime: task.processingTime || null,
+      tokensUsed: task.tokensUsed || null,
+    };
+
+    // Validate enum values
+    const validTaskTypes = ["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"];
+    if (!validTaskTypes.includes(validatedTask.taskType)) {
+      throw new Error(`Invalid taskType: "${validatedTask.taskType}". Must be one of: ${validTaskTypes.join(", ")}`);
+    }
+
+    const validStatuses = ["pending", "processing", "completed", "failed"];
+    if (!validStatuses.includes(validatedTask.status)) {
+      throw new Error(`Invalid status: "${validatedTask.status}". Must be one of: ${validStatuses.join(", ")}`);
+    }
+
+    const validPriorities = ["low", "medium", "high"];
+    if (!validPriorities.includes(validatedTask.priority)) {
+      throw new Error(`Invalid priority: "${validatedTask.priority}". Must be one of: ${validPriorities.join(", ")}`);
+    }
+
+    // Validate required fields
+    if (!validatedTask.title) {
+      throw new Error("Title is required");
+    }
+    if (!validatedTask.description) {
+      throw new Error("Description is required");
+    }
+    if (!validatedTask.inputData) {
+      throw new Error("Input data is required");
+    }
+    
+    const result = await db.insert(nlpTasks).values(validatedTask).returning();
     if (!result[0]) {
       const error = new Error("Failed to create task: No result returned from database");
       console.error("[Database] Task creation failed:", error);
@@ -433,6 +476,18 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
   } catch (error) {
     console.error("[Database] Error creating task:", error);
     if (error instanceof Error) {
+      // Check if it's a PostgreSQL enum error
+      if (error.message.includes("invalid input value for enum") || 
+          error.message.includes("does not match the expected pattern") ||
+          error.message.includes("invalid enum value")) {
+        console.error("[Database] Enum validation error - this usually means the database enum doesn't match the schema");
+        console.error("[Database] Task data:", {
+          taskType: task.taskType,
+          status: task.status,
+          priority: task.priority,
+        });
+        throw new Error(`Database enum validation failed. Please ensure your database schema is up to date. Run: pnpm db:push`);
+      }
       throw error;
     }
     throw new Error(`Failed to create task: ${String(error)}`);
