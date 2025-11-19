@@ -27,14 +27,31 @@ let _db: ReturnType<typeof drizzle> | null = null;
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  if (!_db) {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      console.warn("[Database] DATABASE_URL environment variable is not set");
+      return null;
+    }
+    
     try {
+      // Handle both connection string formats (with and without psql prefix)
+      let connectionString = databaseUrl;
+      if (connectionString.startsWith("psql ")) {
+        // Remove 'psql ' prefix if present
+        connectionString = connectionString.substring(5).trim();
+        // Remove quotes if present
+        connectionString = connectionString.replace(/^['"]|['"]$/g, '');
+      }
+      
       const pool = new Pool({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: connectionString,
+        ssl: connectionString.includes('sslmode=require') ? { rejectUnauthorized: false } : undefined,
       });
       _db = drizzle(pool);
+      console.log("[Database] Connected successfully");
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      console.error("[Database] Failed to connect:", error);
       _db = null;
     }
   }
@@ -147,12 +164,31 @@ export async function ensureDefaultUser(): Promise<void> {
 // NLP Task operations
 export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!db) {
+    const error = new Error("Database not available. Please check DATABASE_URL environment variable.");
+    console.error("[Database] Cannot create task:", error);
+    throw error;
+  }
 
-  const result = await db.insert(nlpTasks).values(task).returning();
-  if (!result[0]) throw new Error("Failed to create task");
-  
-  return result[0];
+  try {
+    // Ensure default user exists before creating task
+    await ensureDefaultUser();
+    
+    const result = await db.insert(nlpTasks).values(task).returning();
+    if (!result[0]) {
+      const error = new Error("Failed to create task: No result returned from database");
+      console.error("[Database] Task creation failed:", error);
+      throw error;
+    }
+    
+    return result[0];
+  } catch (error) {
+    console.error("[Database] Error creating task:", error);
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(`Failed to create task: ${String(error)}`);
+  }
 }
 
 export async function updateNlpTask(id: number, updates: Partial<InsertNlpTask>): Promise<void> {

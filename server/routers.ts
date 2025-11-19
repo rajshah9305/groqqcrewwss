@@ -15,7 +15,8 @@ import {
   getUserPreferences,
   upsertUserPreferences,
   getUserSavedResults,
-  createSavedResult
+  createSavedResult,
+  ensureDefaultUser
 } from "./db";
 import { executeCrewAITask } from "./crewai";
 import { streamGroqCompletion } from "./groq";
@@ -39,17 +40,30 @@ export const appRouter = router({
         agentConfig: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        const task = await createNlpTask({
-          userId: DEFAULT_USER_ID,
-          title: input.title,
-          description: input.description,
-          taskType: input.taskType,
-          inputData: input.inputData,
-          priority: input.priority || "medium",
-          agentConfig: input.agentConfig,
-          status: "pending",
-        });
-        return task;
+        try {
+          // Ensure default user exists before creating task
+          await ensureDefaultUser();
+          
+          const task = await createNlpTask({
+            userId: DEFAULT_USER_ID,
+            title: input.title,
+            description: input.description,
+            taskType: input.taskType,
+            inputData: input.inputData,
+            priority: input.priority || "medium",
+            agentConfig: input.agentConfig,
+            status: "pending",
+          });
+          return task;
+        } catch (error) {
+          console.error("[tRPC] Error in createTask:", error);
+          const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to create task: ${errorMessage}`,
+            cause: error,
+          });
+        }
       }),
 
     executeTask: protectedProcedure
