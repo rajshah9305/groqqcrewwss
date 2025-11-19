@@ -13,6 +13,7 @@ import { Loader2, Play, Trash2, Clock, CheckCircle2, XCircle, Sparkles, Bot, Fil
 import { Link } from "wouter";
 import { APP_TITLE } from "@/const";
 import { Streamdown } from "streamdown";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const [title, setTitle] = useState("");
@@ -27,7 +28,7 @@ export default function Dashboard() {
 
   const utils = trpc.useUtils();
   const { data: tasks, isLoading: tasksLoading } = trpc.nlp.getTasks.useQuery({ limit: 50 });
-  const { data: selectedTaskData } = trpc.nlp.getTask.useQuery(
+  const { data: selectedTaskData, isLoading: selectedTaskLoading } = trpc.nlp.getTask.useQuery(
     { id: selectedTask! },
     { enabled: !!selectedTask }
   );
@@ -157,7 +158,20 @@ export default function Dashboard() {
         <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
           {/* Task Creation Form */}
           <div className="lg:col-span-1">
-            <Card className="border-gray-200 bg-white lg:sticky lg:top-28 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+            <Card className={`border-gray-200 bg-white lg:sticky lg:top-28 shadow-xl hover:shadow-2xl transition-shadow duration-300 relative ${
+              createTask.isPending || executeTask.isPending ? "opacity-95" : ""
+            }`}>
+              {(createTask.isPending || executeTask.isPending) && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg z-10 flex items-center justify-center">
+                  <div className="text-center">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-orange-500 mb-3" />
+                    <p className="text-sm font-medium text-gray-700">
+                      {createTask.isPending ? "Creating task..." : "Processing task..."}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Please wait</p>
+                  </div>
+                </div>
+              )}
               <CardHeader className="px-5 py-4 bg-gradient-to-br from-orange-50 via-orange-50/50 to-white border-b border-gray-100">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-xl bg-orange-500 text-white shadow-md">
@@ -165,8 +179,8 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <CardTitle className="text-lg sm:text-xl font-bold text-black">
-                      Create New Task
-                    </CardTitle>
+                  Create New Task
+                </CardTitle>
                     <CardDescription className="text-xs sm:text-sm text-gray-600 mt-1">
                       Configure and submit your NLP task
                     </CardDescription>
@@ -215,7 +229,7 @@ export default function Dashboard() {
                         <Settings className="w-4 h-4 text-gray-500" />
                         Task Type
                       </Label>
-                      <Select value={taskType} onValueChange={(v: any) => setTaskType(v)}>
+                    <Select value={taskType} onValueChange={(v: any) => setTaskType(v)}>
                         <SelectTrigger id="taskType" className="h-10 text-sm border-gray-300 focus:border-orange-500 focus:ring-orange-500">
                           <SelectValue />
                         </SelectTrigger>
@@ -236,14 +250,14 @@ export default function Dashboard() {
                       </Label>
                       <Select value={priority} onValueChange={(v: any) => setPriority(v)}>
                         <SelectTrigger id="priority" className="h-10 text-sm border-gray-300 focus:border-orange-500 focus:ring-orange-500">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
                           <SelectItem value="low">🟢 Low</SelectItem>
                           <SelectItem value="medium">🟡 Medium</SelectItem>
                           <SelectItem value="high">🔴 High</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      </SelectContent>
+                    </Select>
                     </div>
                   </div>
 
@@ -275,7 +289,7 @@ export default function Dashboard() {
                       <span className="text-sm font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-lg shadow-sm">
                         {temperature.toFixed(1)}
                       </span>
-                    </div>
+                  </div>
                     <input
                       id="temperature"
                       type="range"
@@ -299,18 +313,18 @@ export default function Dashboard() {
                   {/* Multi-Agent Toggle */}
                   <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-50/50 rounded-xl border border-gray-200 shadow-sm">
                     <div className="flex items-start gap-3">
-                      <input
-                        id="multiAgent"
-                        type="checkbox"
-                        checked={multiAgent}
-                        onChange={(e) => setMultiAgent(e.target.checked)}
+                    <input
+                      id="multiAgent"
+                      type="checkbox"
+                      checked={multiAgent}
+                      onChange={(e) => setMultiAgent(e.target.checked)}
                         className="mt-0.5 w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 focus:ring-2 cursor-pointer"
                       />
                       <div className="flex-1">
                         <Label htmlFor="multiAgent" className="text-xs font-semibold text-black cursor-pointer flex items-center gap-2">
                           <Users className="w-4 h-4 text-gray-500" />
                           Multi-Agent Processing
-                        </Label>
+                    </Label>
                         <p className="text-xs text-gray-600 mt-1 leading-relaxed">
                           Enable collaborative AI agents for complex tasks
                         </p>
@@ -321,13 +335,20 @@ export default function Dashboard() {
                   {/* Submit Button */}
                   <Button
                     type="submit"
-                    className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 mt-2"
+                    className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     disabled={createTask.isPending || executeTask.isPending}
                   >
                     {createTask.isPending || executeTask.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Processing...
+                        <span className="flex items-center gap-2">
+                          <span>Processing</span>
+                          <span className="flex gap-1">
+                            <span className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                            <span className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                            <span className="w-1 h-1 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                          </span>
+                        </span>
                       </>
                     ) : (
                       <>
@@ -363,9 +384,9 @@ export default function Dashboard() {
                     disabled={!selectedTask}
                     className="data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all disabled:opacity-50"
                   >
-                    Task Details
-                  </TabsTrigger>
-                </TabsList>
+                  Task Details
+                </TabsTrigger>
+              </TabsList>
                 {selectedTask && (
                   <Button
                     variant="ghost"
@@ -383,23 +404,54 @@ export default function Dashboard() {
 
               <TabsContent value="tasks" className="space-y-4">
                 {tasksLoading ? (
-                  <Card className="border-gray-200 bg-white shadow-md">
-                    <CardContent className="py-20 text-center">
-                      <Loader2 className="w-12 h-12 animate-spin mx-auto text-orange-500 mb-5" />
-                      <p className="text-sm sm:text-base text-gray-600 font-medium">Loading tasks...</p>
-                    </CardContent>
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <Card key={i} className="border-gray-200 bg-white shadow-sm">
+                        <CardHeader className="px-5 sm:px-6 py-5 sm:py-6">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0 space-y-3">
+                              <div className="flex items-start gap-3.5">
+                                <Skeleton className="w-10 h-10 rounded-xl" />
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <Skeleton className="h-5 w-3/4" />
+                                  <Skeleton className="h-4 w-full" />
+                                  <Skeleton className="h-4 w-2/3" />
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-3.5 ml-[3.25rem]">
+                                <Skeleton className="h-5 w-20 rounded-md" />
+                                <Skeleton className="h-5 w-16 rounded-md" />
+                                <Skeleton className="h-5 w-24 rounded-md" />
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2 shrink-0">
+                              <Skeleton className="h-6 w-16 rounded-full" />
+                              <Skeleton className="h-8 w-8 rounded-md" />
+                            </div>
+                          </div>
+                        </CardHeader>
                   </Card>
+                    ))}
+                  </div>
                 ) : tasks && tasks.length > 0 ? (
                   <div className="space-y-3">
                     {tasks.map((task) => (
-                      <Card
-                        key={task.id}
-                        className="border-gray-200 bg-white hover:border-orange-300 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                    <Card
+                      key={task.id}
+                        className={`border-gray-200 bg-white hover:border-orange-300 hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${
+                          task.status === "processing" ? "ring-2 ring-orange-300 ring-offset-2 animate-pulse" : ""
+                        }`}
                         onClick={() => {
                           setSelectedTask(task.id);
                           setActiveTab("details");
                         }}
                       >
+                        {task.status === "processing" && (
+                          <div className="absolute top-2 right-2 flex items-center gap-1.5 px-2 py-1 bg-orange-100 rounded-full text-xs font-medium text-orange-700">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <span>Processing</span>
+                          </div>
+                        )}
                         <CardHeader className="px-5 sm:px-6 py-5 sm:py-6">
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0 space-y-3">
@@ -407,9 +459,9 @@ export default function Dashboard() {
                                 <div className="mt-0.5 p-2 rounded-xl bg-orange-50 text-orange-600 group-hover:bg-orange-100 transition-all duration-300 shadow-sm group-hover:shadow-md">
                                   {getTaskTypeIcon(task.taskType)}
                                 </div>
-                                <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-3 mb-2">
-                                    {getStatusIcon(task.status)}
+                              {getStatusIcon(task.status)}
                                     <CardTitle className="text-base sm:text-lg font-semibold text-black group-hover:text-orange-600 transition-colors line-clamp-1">
                                       {task.title}
                                     </CardTitle>
@@ -471,10 +523,10 @@ export default function Dashboard() {
                               Delete
                             </Button>
                           </div>
-                        </CardHeader>
+                      </CardHeader>
                       </Card>
                     ))}
-                  </div>
+                        </div>
                 ) : (
                   <Card className="border-gray-200 bg-white shadow-md">
                     <CardContent className="py-20 text-center">
@@ -498,7 +550,44 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="details">
-                {selectedTaskData && (
+                {selectedTaskLoading ? (
+                  <Card className="border-gray-200 bg-white shadow-lg">
+                    <CardHeader className="px-6 sm:px-8 py-6 border-b border-gray-100">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div className="min-w-0 flex-1 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="w-10 h-10 rounded-lg" />
+                            <Skeleton className="h-8 w-3/4" />
+                          </div>
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-5/6" />
+                        </div>
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="px-6 sm:px-8 py-6 space-y-6">
+                      <div className="space-y-3">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-32 w-full rounded-xl" />
+                      </div>
+                      <div className="space-y-3">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-40 w-full rounded-xl" />
+                      </div>
+                      <div className="pt-6 border-t border-gray-200 space-y-4">
+                        <Skeleton className="h-4 w-32" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="space-y-2">
+                              <Skeleton className="h-3 w-24" />
+                              <Skeleton className="h-4 w-32" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : selectedTaskData ? (
                   <div className="space-y-5">
                     <Card className="border-gray-200 bg-white shadow-lg">
                       <CardHeader className="px-6 sm:px-8 py-6 border-b border-gray-100">
@@ -518,11 +607,11 @@ export default function Dashboard() {
                           </div>
                           <div className="shrink-0">
                             {getStatusBadge(selectedTaskData.status)}
-                          </div>
                         </div>
-                      </CardHeader>
+                      </div>
+                    </CardHeader>
                       <CardContent className="px-6 sm:px-8 py-6 space-y-6">
-                        <div>
+                      <div>
                           <div className="flex items-center gap-2.5 mb-4">
                             <div className="p-1.5 rounded-lg bg-gray-100">
                               <FileText className="w-4 h-4 text-gray-600" />
@@ -533,11 +622,11 @@ export default function Dashboard() {
                             <pre className="whitespace-pre-wrap text-sm text-gray-800 break-words font-mono leading-relaxed">
                               {selectedTaskData.inputData}
                             </pre>
-                          </div>
                         </div>
+                      </div>
 
-                        {selectedTaskData.outputData && (
-                          <div>
+                      {selectedTaskData.outputData && (
+                        <div>
                             <div className="flex items-center gap-2.5 mb-4">
                               <div className="p-1.5 rounded-lg bg-orange-100">
                                 <Sparkles className="w-4 h-4 text-orange-600" />
@@ -546,25 +635,25 @@ export default function Dashboard() {
                             </div>
                             <div className="mt-2 p-6 bg-gradient-to-br from-orange-50 via-orange-50/80 to-orange-50/50 rounded-xl border-2 border-orange-200 overflow-x-auto shadow-md">
                               <div className="prose prose-sm max-w-none">
-                                <Streamdown>{selectedTaskData.outputData}</Streamdown>
+                            <Streamdown>{selectedTaskData.outputData}</Streamdown>
                               </div>
-                            </div>
                           </div>
-                        )}
+                        </div>
+                      )}
 
-                        {selectedTaskData.errorMessage && (
-                          <div>
+                      {selectedTaskData.errorMessage && (
+                        <div>
                             <div className="flex items-center gap-2.5 mb-4">
                               <div className="p-1.5 rounded-lg bg-red-100">
                                 <XCircle className="w-4 h-4 text-red-600" />
                               </div>
-                              <Label className="text-sm font-semibold text-red-700">Error</Label>
+                          <Label className="text-sm font-semibold text-red-700">Error</Label>
                             </div>
                             <div className="mt-2 p-5 bg-red-50 rounded-xl border-2 border-red-200 text-red-800 text-sm break-words leading-relaxed shadow-sm">
-                              {selectedTaskData.errorMessage}
-                            </div>
+                            {selectedTaskData.errorMessage}
                           </div>
-                        )}
+                        </div>
+                      )}
 
                         <div className="pt-6 border-t border-gray-200">
                           <h4 className="text-sm font-semibold text-black mb-5">Task Information</h4>
@@ -579,24 +668,24 @@ export default function Dashboard() {
                                   {selectedTaskData.taskType.replace("_", " ")}
                                 </p>
                               </div>
-                            </div>
+                        </div>
                             <div className="space-y-1">
                               <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Priority</Label>
                               <p className="text-sm font-medium text-black capitalize">{selectedTaskData.priority}</p>
-                            </div>
+                        </div>
                             <div className="space-y-1">
                               <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Created</Label>
                               <div className="flex items-center gap-1.5 text-sm text-gray-700">
                                 <Calendar className="w-3.5 h-3.5" />
-                                <p>{new Date(selectedTaskData.createdAt).toLocaleString()}</p>
+                          <p>{new Date(selectedTaskData.createdAt).toLocaleString()}</p>
                               </div>
-                            </div>
-                            {selectedTaskData.completedAt && (
+                        </div>
+                        {selectedTaskData.completedAt && (
                               <div className="space-y-1">
                                 <Label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Completed</Label>
                                 <div className="flex items-center gap-1.5 text-sm text-gray-700">
                                   <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                                  <p>{new Date(selectedTaskData.completedAt).toLocaleString()}</p>
+                            <p>{new Date(selectedTaskData.completedAt).toLocaleString()}</p>
                                 </div>
                               </div>
                             )}
@@ -610,11 +699,21 @@ export default function Dashboard() {
                               </div>
                             )}
                           </div>
-                        </div>
+                      </div>
                       </CardContent>
                     </Card>
                   </div>
-                )}
+                ) : selectedTask ? (
+                  <Card className="border-gray-200 bg-white shadow-md">
+                    <CardContent className="py-20 text-center">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-50 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-black mb-2">Loading task details</h3>
+                      <p className="text-sm text-gray-600">Please wait while we fetch the task information...</p>
+                    </CardContent>
+                  </Card>
+                ) : null}
               </TabsContent>
             </Tabs>
           </div>
