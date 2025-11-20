@@ -248,8 +248,8 @@ export async function getDb() {
       
       // Determine SSL requirement
       const requiresSSL = connectionString.includes('sslmode=require') || 
-                         connectionString.includes('neon.tech') ||
-                         connectionString.includes('supabase.co');
+                          connectionString.includes('neon.tech') ||
+                          connectionString.includes('supabase.co');
       
       const pool = new Pool({
         connectionString,
@@ -310,10 +310,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       openId: user.openId,
     };
     const updateSet: Record<string, unknown> = {};
-
+    
     const textFields = ["name", "email", "loginMethod"] as const;
     type TextField = (typeof textFields)[number];
-
+    
     const assignNullable = (field: TextField) => {
       const value = user[field];
       if (value === undefined) return;
@@ -321,9 +321,9 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values[field] = normalized;
       updateSet[field] = normalized;
     };
-
+    
     textFields.forEach(assignNullable);
-
+    
     if (user.lastSignedIn !== undefined) {
       values.lastSignedIn = user.lastSignedIn;
       updateSet.lastSignedIn = user.lastSignedIn;
@@ -332,15 +332,15 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     }
-
+    
     if (!values.lastSignedIn) {
       values.lastSignedIn = new Date();
     }
-
+    
     if (Object.keys(updateSet).length === 0) {
       updateSet.lastSignedIn = new Date();
     }
-
+    
     await db.insert(users).values(values).onConflictDoUpdate({
       target: users.openId,
       set: updateSet,
@@ -356,9 +356,9 @@ export async function getUserByOpenId(openId: string) {
   if (!db) {
     return inMemoryState.users.find((user) => user.openId === openId);
   }
-
+  
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-
+  
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -367,7 +367,7 @@ export async function getUserById(id: number) {
   if (!db) {
     return inMemoryState.users.find((user) => user.id === id);
   }
-
+  
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
@@ -378,7 +378,7 @@ export async function ensureDefaultUser(): Promise<void> {
     ensureInMemoryDefaultUser();
     return;
   }
-
+  
   try {
     const existingUser = await getUserById(1);
     if (!existingUser) {
@@ -412,12 +412,12 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
     // Validate and sanitize task data before insertion
     const taskData = {
       userId: task.userId || 1,
-      title: (task.title || "").toString().trim(),
-      description: (task.description || "").toString().trim(),
-      taskType: task.taskType as "summarization" | "analysis" | "research" | "content_generation" | "code_generation" | "translation" | "custom",
-      status: (task.status || "pending") as "pending" | "processing" | "completed" | "failed",
-      priority: (task.priority || "medium") as "low" | "medium" | "high",
-      inputData: (task.inputData || "").toString().trim(),
+      title: task.title!.trim(),
+      description: task.description!.trim(),
+      taskType: task.taskType,
+      status: task.status || "pending",
+      priority: task.priority || "medium",
+      inputData: task.inputData!.trim(),
       outputData: task.outputData || null,
       agentConfig: task.agentConfig || null,
       errorMessage: task.errorMessage || null,
@@ -430,17 +430,17 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
     if (!validTaskTypes.includes(taskData.taskType)) {
       throw new Error(`Invalid taskType: "${taskData.taskType}". Must be one of: ${validTaskTypes.join(", ")}`);
     }
-
+    
     const validStatuses = ["pending", "processing", "completed", "failed"];
     if (!validStatuses.includes(taskData.status)) {
       throw new Error(`Invalid status: "${taskData.status}". Must be one of: ${validStatuses.join(", ")}`);
     }
-
+    
     const validPriorities = ["low", "medium", "high"];
     if (!validPriorities.includes(taskData.priority)) {
       throw new Error(`Invalid priority: "${taskData.priority}". Must be one of: ${validPriorities.join(", ")}`);
     }
-
+    
     // Validate required fields
     if (!taskData.title || taskData.title.length === 0) {
       throw new Error("Title is required and cannot be empty");
@@ -515,7 +515,7 @@ export async function updateNlpTask(id: number, updates: Partial<InsertNlpTask>)
       updates.completedAt === undefined
         ? current.completedAt
         : toNullableDate(updates.completedAt);
-
+    
     inMemoryState.nlpTasks[index] = {
       ...current,
       ...updates,
@@ -526,7 +526,7 @@ export async function updateNlpTask(id: number, updates: Partial<InsertNlpTask>)
     };
     return;
   }
-
+  
   await db.update(nlpTasks).set(updates).where(eq(nlpTasks.id, id));
 }
 
@@ -535,7 +535,7 @@ export async function getNlpTaskById(id: number): Promise<NlpTask | undefined> {
   if (!db) {
     return inMemoryState.nlpTasks.find((task) => task.id === id);
   }
-
+  
   const result = await db.select().from(nlpTasks).where(eq(nlpTasks.id, id)).limit(1);
   return result[0];
 }
@@ -549,7 +549,7 @@ export async function getUserNlpTasks(userId: number, limit: number = 50): Promi
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, pageSize);
   }
-
+  
   return db.select().from(nlpTasks)
     .where(eq(nlpTasks.userId, userId))
     .orderBy(desc(nlpTasks.createdAt))
@@ -566,7 +566,7 @@ export async function deleteNlpTask(id: number, userId: number): Promise<void> {
     inMemoryState.nlpTasks.splice(index, 1);
     return;
   }
-
+  
   await db.delete(nlpTasks).where(
     and(eq(nlpTasks.id, id), eq(nlpTasks.userId, userId))
   );
@@ -580,7 +580,7 @@ export async function createAgentConfig(config: InsertAgentConfig): Promise<Agen
     inMemoryState.agentConfigs.push(newConfig);
     return newConfig;
   }
-
+  
   const result = await db.insert(agentConfigs).values(config).returning();
   if (!result[0]) throw new Error("Failed to create agent config");
   
@@ -594,7 +594,7 @@ export async function getUserAgentConfigs(userId: number): Promise<AgentConfig[]
       .filter((config) => config.userId === userId)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
-
+  
   return db.select().from(agentConfigs)
     .where(eq(agentConfigs.userId, userId))
     .orderBy(desc(agentConfigs.createdAt));
@@ -607,7 +607,7 @@ export async function getPublicAgentConfigs(): Promise<AgentConfig[]> {
       .filter((config) => config.isPublic)
       .sort((a, b) => (b.usageCount ?? 0) - (a.usageCount ?? 0));
   }
-
+  
   return db.select().from(agentConfigs)
     .where(eq(agentConfigs.isPublic, true))
     .orderBy(desc(agentConfigs.usageCount));
@@ -623,7 +623,7 @@ export async function incrementAgentConfigUsage(id: number): Promise<void> {
     }
     return;
   }
-
+  
   const config = await db.select().from(agentConfigs).where(eq(agentConfigs.id, id)).limit(1);
   if (config[0]) {
     await db.update(agentConfigs)
@@ -648,7 +648,7 @@ export async function createTaskLog(log: InsertTaskLog): Promise<void> {
     inMemoryState.taskLogs.push(newLog);
     return;
   }
-
+  
   await db.insert(taskLogs).values(log);
 }
 
@@ -659,7 +659,7 @@ export async function getTaskLogs(taskId: number): Promise<TaskLog[]> {
       .filter((log) => log.taskId === taskId)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
-
+  
   return db.select().from(taskLogs)
     .where(eq(taskLogs.taskId, taskId))
     .orderBy(desc(taskLogs.createdAt));
@@ -671,7 +671,7 @@ export async function getUserPreferences(userId: number): Promise<UserPreference
   if (!db) {
     return inMemoryState.userPreferences.find((pref) => pref.userId === userId);
   }
-
+  
   const result = await db.select().from(userPreferences).where(eq(userPreferences.userId, userId)).limit(1);
   return result[0];
 }
@@ -682,7 +682,7 @@ export async function upsertUserPreferences(prefs: InsertUserPreference): Promis
     const existingIndex = inMemoryState.userPreferences.findIndex(
       (pref) => pref.userId === prefs.userId,
     );
-
+    
     if (existingIndex >= 0) {
       const existing = inMemoryState.userPreferences[existingIndex];
       inMemoryState.userPreferences[existingIndex] = {
@@ -712,7 +712,7 @@ export async function upsertUserPreferences(prefs: InsertUserPreference): Promis
     }
     return;
   }
-
+  
   await db.insert(userPreferences).values(prefs).onConflictDoUpdate({
     target: userPreferences.userId,
     set: prefs,
@@ -727,7 +727,7 @@ export async function createSavedResult(result: InsertSavedResult): Promise<Save
     inMemoryState.savedResults.push(newResult);
     return newResult;
   }
-
+  
   const insertResult = await db.insert(savedResults).values(result).returning();
   if (!insertResult[0]) throw new Error("Failed to create saved result");
   
@@ -741,7 +741,7 @@ export async function getUserSavedResults(userId: number): Promise<SavedResult[]
       .filter((result) => result.userId === userId)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
-
+  
   return db.select().from(savedResults)
     .where(eq(savedResults.userId, userId))
     .orderBy(desc(savedResults.createdAt));
