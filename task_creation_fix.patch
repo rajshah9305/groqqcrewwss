@@ -1,0 +1,12 @@
+--- a/server/routers.ts
++++ b/server/routers.ts
+@@ -55,7 +55,8 @@
+ 	            userId: DEFAULT_USER_ID,
+ 	            title: input.title.trim(),
+ 	            description: input.description.trim(),
+-	            taskType: input.taskType,
++	            taskType: input.taskType,
++	            inputData: input.inputData.trim(),
+ 	            priority: input.priority,
+ 	            agentConfig: input.agentConfig,
+ 	            status: "pending",
