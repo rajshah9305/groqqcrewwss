@@ -83,7 +83,7 @@ pip install -r requirements.txt
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory by copying the example:
 
 ```bash
 cp .env.example .env
@@ -105,6 +105,8 @@ OPENAI_API_KEY=dummy-key-to-disable-openai
 NODE_ENV=development
 PORT=3000
 ```
+
+**Note:** Get your Groq API key from the [Groq Console](https://console.groq.com/keys) and your PostgreSQL connection string from your database provider (e.g., [Neon](https://neon.tech/))
 
 ### 4. Set Up Database
 
@@ -260,11 +262,16 @@ This project is configured for Vercel deployment:
    pnpm db:push
    ```
 4. **Add environment variables in Vercel dashboard**:
-   - `DATABASE_URL` - Your PostgreSQL connection string
-   - `GROQ_API_KEY` - Your Groq API key
-   - `OPENAI_API_KEY` - Set to `dummy-key-to-disable-openai`
-   - `NODE_ENV` - Set to `production`
+   - Go to your project's **Settings** → **Environment Variables**
+   - Add the following variables (make sure to select **Production**, **Preview**, and **Development**):
+     - `DATABASE_URL` - Your PostgreSQL connection string (e.g., from Neon)
+     - `GROQ_API_KEY` - Your Groq API key from [Groq Console](https://console.groq.com/keys)
+     - `OPENAI_API_KEY` - Set to `dummy-key-to-disable-openai`
+   - Click **Save** after adding each variable
 5. **Deploy** - Vercel will automatically build and deploy
+6. **Verify the deployment**:
+   - Visit `https://your-app.vercel.app/api/health` to check database connection
+   - You should see a success message with `"status": "healthy"`
 
 **Important Notes:**
 - The database schema must be set up before the first deployment
