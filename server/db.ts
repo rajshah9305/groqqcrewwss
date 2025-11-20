@@ -410,55 +410,55 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
     await ensureDefaultUser();
     
     // Validate and sanitize task data before insertion
-    const validatedTask = {
-      userId: task.userId || 1, // Default to user ID 1
+    const taskData = {
+      userId: task.userId || 1,
       title: (task.title || "").toString().trim(),
       description: (task.description || "").toString().trim(),
-      taskType: (task.taskType || "custom").toString().toLowerCase().trim(),
-      status: (task.status || "pending").toString().toLowerCase().trim(),
-      priority: (task.priority || "medium").toString().toLowerCase().trim(),
+      taskType: task.taskType as "summarization" | "analysis" | "research" | "content_generation" | "code_generation" | "translation" | "custom",
+      status: (task.status || "pending") as "pending" | "processing" | "completed" | "failed",
+      priority: (task.priority || "medium") as "low" | "medium" | "high",
       inputData: (task.inputData || "").toString().trim(),
-      outputData: task.outputData ? task.outputData.toString() : null,
-      agentConfig: task.agentConfig ? task.agentConfig.toString() : null,
-      errorMessage: task.errorMessage ? task.errorMessage.toString() : null,
+      outputData: task.outputData || null,
+      agentConfig: task.agentConfig || null,
+      errorMessage: task.errorMessage || null,
       processingTime: task.processingTime || null,
       tokensUsed: task.tokensUsed || null,
     };
 
-    // Validate enum values with more specific error messages
+    // Validate enum values
     const validTaskTypes = ["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"];
-    if (!validTaskTypes.includes(validatedTask.taskType)) {
-      throw new Error(`Invalid taskType: "${validatedTask.taskType}". Must be one of: ${validTaskTypes.join(", ")}`);
+    if (!validTaskTypes.includes(taskData.taskType)) {
+      throw new Error(`Invalid taskType: "${taskData.taskType}". Must be one of: ${validTaskTypes.join(", ")}`);
     }
 
     const validStatuses = ["pending", "processing", "completed", "failed"];
-    if (!validStatuses.includes(validatedTask.status)) {
-      throw new Error(`Invalid status: "${validatedTask.status}". Must be one of: ${validStatuses.join(", ")}`);
+    if (!validStatuses.includes(taskData.status)) {
+      throw new Error(`Invalid status: "${taskData.status}". Must be one of: ${validStatuses.join(", ")}`);
     }
 
     const validPriorities = ["low", "medium", "high"];
-    if (!validPriorities.includes(validatedTask.priority)) {
-      throw new Error(`Invalid priority: "${validatedTask.priority}". Must be one of: ${validPriorities.join(", ")}`);
+    if (!validPriorities.includes(taskData.priority)) {
+      throw new Error(`Invalid priority: "${taskData.priority}". Must be one of: ${validPriorities.join(", ")}`);
     }
 
-    // Validate required fields with more specific messages
-    if (!validatedTask.title || validatedTask.title.length === 0) {
+    // Validate required fields
+    if (!taskData.title || taskData.title.length === 0) {
       throw new Error("Title is required and cannot be empty");
     }
-    if (validatedTask.title.length > 255) {
+    if (taskData.title.length > 255) {
       throw new Error("Title cannot exceed 255 characters");
     }
-    if (!validatedTask.description || validatedTask.description.length === 0) {
+    if (!taskData.description || taskData.description.length === 0) {
       throw new Error("Description is required and cannot be empty");
     }
-    if (!validatedTask.inputData || validatedTask.inputData.length === 0) {
+    if (!taskData.inputData || taskData.inputData.length === 0) {
       throw new Error("Input data is required and cannot be empty");
     }
-    if (!validatedTask.userId || validatedTask.userId < 1) {
+    if (!taskData.userId || taskData.userId < 1) {
       throw new Error("Valid user ID is required");
     }
     
-    const result = await db.insert(nlpTasks).values(validatedTask).returning();
+    const result = await db.insert(nlpTasks).values(taskData).returning();
     if (!result[0]) {
       const error = new Error("Failed to create task: No result returned from database");
       console.error("[Database] Task creation failed:", error);
@@ -478,19 +478,19 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
           (errorMsg.includes("enum") && errorMsg.includes("pattern"))) {
         console.error("[Database] Enum validation error - this usually means the database enum doesn't match the schema");
         console.error("[Database] Task data:", {
-          taskType: validatedTask.taskType,
-          status: validatedTask.status,
-          priority: validatedTask.priority,
+          taskType: taskData.taskType,
+          status: taskData.status,
+          priority: taskData.priority,
         });
         
         // Try to identify which field is causing the issue
         let fieldHint = "";
         if (errorMsg.includes("tasktype") || errorMsg.includes("task_type")) {
-          fieldHint = ` The issue is with taskType: "${validatedTask.taskType}"`;
+          fieldHint = ` The issue is with taskType: "${taskData.taskType}"`;
         } else if (errorMsg.includes("status")) {
-          fieldHint = ` The issue is with status: "${validatedTask.status}"`;
+          fieldHint = ` The issue is with status: "${taskData.status}"`;
         } else if (errorMsg.includes("priority")) {
-          fieldHint = ` The issue is with priority: "${validatedTask.priority}"`;
+          fieldHint = ` The issue is with priority: "${taskData.priority}"`;
         }
         
         const helpfulMsg = `Database enum validation failed.${fieldHint}\n\nThis usually means the database enum values don't match your code schema.\n\nTo fix this:\n1. Run: pnpm db:push\n2. Or run: pnpm db:generate && pnpm db:migrate\n\nIf the issue persists, the database may need to be recreated.`;

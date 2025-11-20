@@ -39,15 +39,11 @@ export const appRouter = router({
         description: z.string()
           .min(1, "Description is required")
           .trim(),
-        taskType: z.enum(["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"], {
-          errorMap: () => ({ message: "Invalid task type. Must be one of: summarization, analysis, research, content_generation, code_generation, translation, custom" })
-        }),
+        taskType: z.enum(["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"]),
         inputData: z.string()
           .min(1, "Input data is required")
           .trim(),
-        priority: z.enum(["low", "medium", "high"], {
-          errorMap: () => ({ message: "Invalid priority. Must be one of: low, medium, high" })
-        }).optional().default("medium"),
+        priority: z.enum(["low", "medium", "high"]).optional().default("medium"),
         agentConfig: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
