@@ -461,17 +461,21 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
   } catch (error) {
     console.error("[Database] Error creating task:", error);
     if (error instanceof Error) {
-      // Check if it's a PostgreSQL enum error
-      if (error.message.includes("invalid input value for enum") || 
-          error.message.includes("does not match the expected pattern") ||
-          error.message.includes("invalid enum value")) {
+      // Check if it's a PostgreSQL enum error (check various error formats)
+      const errorMsg = error.message.toLowerCase();
+      if (errorMsg.includes("invalid input value for enum") || 
+          errorMsg.includes("does not match the expected pattern") ||
+          errorMsg.includes("invalid enum value") ||
+          errorMsg.includes("string did not match") ||
+          errorMsg.includes("enum") && errorMsg.includes("pattern")) {
         console.error("[Database] Enum validation error - this usually means the database enum doesn't match the schema");
         console.error("[Database] Task data:", {
           taskType: task.taskType,
           status: task.status,
           priority: task.priority,
         });
-        throw new Error(`Database enum validation failed. Please ensure your database schema is up to date. Run: pnpm db:push`);
+        const helpfulMsg = `Database schema mismatch detected. The database enum values don't match your code schema.\n\nTo fix this:\n1. Make sure DATABASE_URL is set correctly\n2. Run: pnpm db:push\n3. Or run: pnpm db:generate && pnpm db:migrate\n\nTask data attempted: taskType="${task.taskType}", status="${task.status}", priority="${task.priority}"`;
+        throw new Error(helpfulMsg);
       }
       throw error;
     }
