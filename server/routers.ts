@@ -32,11 +32,22 @@ export const appRouter = router({
   nlp: router({
     createTask: protectedProcedure
       .input(z.object({
-        title: z.string().min(1).max(255),
-        description: z.string().min(1),
-        taskType: z.enum(["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"]),
-        inputData: z.string().min(1),
-        priority: z.enum(["low", "medium", "high"]).optional(),
+        title: z.string()
+          .min(1, "Title is required")
+          .max(255, "Title cannot exceed 255 characters")
+          .trim(),
+        description: z.string()
+          .min(1, "Description is required")
+          .trim(),
+        taskType: z.enum(["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"], {
+          errorMap: () => ({ message: "Invalid task type. Must be one of: summarization, analysis, research, content_generation, code_generation, translation, custom" })
+        }),
+        inputData: z.string()
+          .min(1, "Input data is required")
+          .trim(),
+        priority: z.enum(["low", "medium", "high"], {
+          errorMap: () => ({ message: "Invalid priority. Must be one of: low, medium, high" })
+        }).optional().default("medium"),
         agentConfig: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
@@ -46,21 +57,44 @@ export const appRouter = router({
           
           const task = await createNlpTask({
             userId: DEFAULT_USER_ID,
-            title: input.title,
-            description: input.description,
+            title: input.title.trim(),
+            description: input.description.trim(),
             taskType: input.taskType,
-            inputData: input.inputData,
-            priority: input.priority || "medium",
+            inputData: input.inputData.trim(),
+            priority: input.priority,
             agentConfig: input.agentConfig,
             status: "pending",
           });
           return task;
         } catch (error) {
           console.error("[tRPC] Error in createTask:", error);
-          const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+          console.error("[tRPC] Input data:", {
+            title: input.title,
+            description: input.description,
+            taskType: input.taskType,
+            inputData: input.inputData?.substring(0, 100) + "...",
+            priority: input.priority,
+            agentConfig: input.agentConfig,
+          });
+          
+          let errorMessage = "Unknown error occurred";
+          let errorCode: "BAD_REQUEST" | "INTERNAL_SERVER_ERROR" = "INTERNAL_SERVER_ERROR";
+          
+          if (error instanceof Error) {
+            errorMessage = error.message;
+            
+            // Check for validation errors
+            if (errorMessage.includes("required") || 
+                errorMessage.includes("Invalid") ||
+                errorMessage.includes("cannot be empty") ||
+                errorMessage.includes("exceed")) {
+              errorCode = "BAD_REQUEST";
+            }
+          }
+          
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Failed to create task: ${errorMessage}`,
+            code: errorCode,
+            message: errorMessage,
             cause: error,
           });
         }

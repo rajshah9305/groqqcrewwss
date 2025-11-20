@@ -229,10 +229,12 @@ export async function getDb() {
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
       console.warn("[Database] DATABASE_URL environment variable is not set");
+      console.warn("[Database] Check if .env file exists and contains DATABASE_URL");
       forceInMemoryDb = true;
       logInMemoryUsage("missing DATABASE_URL");
       return null;
     }
+    console.log("[Database] DATABASE_URL found, attempting connection...");
     
     try {
       // Handle both connection string formats (with and without psql prefix)
@@ -407,23 +409,23 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
     // Ensure default user exists before creating task
     await ensureDefaultUser();
     
-    // Validate task data before insertion
+    // Validate and sanitize task data before insertion
     const validatedTask = {
-      userId: task.userId,
-      title: task.title?.trim() || "",
-      description: task.description?.trim() || "",
-      taskType: task.taskType,
-      status: task.status || "pending",
-      priority: task.priority || "medium",
-      inputData: task.inputData?.trim() || "",
-      outputData: task.outputData || null,
-      agentConfig: task.agentConfig || null,
-      errorMessage: task.errorMessage || null,
+      userId: task.userId || 1, // Default to user ID 1
+      title: (task.title || "").toString().trim(),
+      description: (task.description || "").toString().trim(),
+      taskType: (task.taskType || "custom").toString().toLowerCase().trim(),
+      status: (task.status || "pending").toString().toLowerCase().trim(),
+      priority: (task.priority || "medium").toString().toLowerCase().trim(),
+      inputData: (task.inputData || "").toString().trim(),
+      outputData: task.outputData ? task.outputData.toString() : null,
+      agentConfig: task.agentConfig ? task.agentConfig.toString() : null,
+      errorMessage: task.errorMessage ? task.errorMessage.toString() : null,
       processingTime: task.processingTime || null,
       tokensUsed: task.tokensUsed || null,
     };
 
-    // Validate enum values
+    // Validate enum values with more specific error messages
     const validTaskTypes = ["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"];
     if (!validTaskTypes.includes(validatedTask.taskType)) {
       throw new Error(`Invalid taskType: "${validatedTask.taskType}". Must be one of: ${validTaskTypes.join(", ")}`);
@@ -439,15 +441,21 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
       throw new Error(`Invalid priority: "${validatedTask.priority}". Must be one of: ${validPriorities.join(", ")}`);
     }
 
-    // Validate required fields
-    if (!validatedTask.title) {
-      throw new Error("Title is required");
+    // Validate required fields with more specific messages
+    if (!validatedTask.title || validatedTask.title.length === 0) {
+      throw new Error("Title is required and cannot be empty");
     }
-    if (!validatedTask.description) {
-      throw new Error("Description is required");
+    if (validatedTask.title.length > 255) {
+      throw new Error("Title cannot exceed 255 characters");
     }
-    if (!validatedTask.inputData) {
-      throw new Error("Input data is required");
+    if (!validatedTask.description || validatedTask.description.length === 0) {
+      throw new Error("Description is required and cannot be empty");
+    }
+    if (!validatedTask.inputData || validatedTask.inputData.length === 0) {
+      throw new Error("Input data is required and cannot be empty");
+    }
+    if (!validatedTask.userId || validatedTask.userId < 1) {
+      throw new Error("Valid user ID is required");
     }
     
     const result = await db.insert(nlpTasks).values(validatedTask).returning();
@@ -467,14 +475,25 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
           errorMsg.includes("does not match the expected pattern") ||
           errorMsg.includes("invalid enum value") ||
           errorMsg.includes("string did not match") ||
-          errorMsg.includes("enum") && errorMsg.includes("pattern")) {
+          (errorMsg.includes("enum") && errorMsg.includes("pattern"))) {
         console.error("[Database] Enum validation error - this usually means the database enum doesn't match the schema");
         console.error("[Database] Task data:", {
-          taskType: task.taskType,
-          status: task.status,
-          priority: task.priority,
+          taskType: validatedTask.taskType,
+          status: validatedTask.status,
+          priority: validatedTask.priority,
         });
-        const helpfulMsg = `Database schema mismatch detected. The database enum values don't match your code schema.\n\nTo fix this:\n1. Make sure DATABASE_URL is set correctly\n2. Run: pnpm db:push\n3. Or run: pnpm db:generate && pnpm db:migrate\n\nTask data attempted: taskType="${task.taskType}", status="${task.status}", priority="${task.priority}"`;
+        
+        // Try to identify which field is causing the issue
+        let fieldHint = "";
+        if (errorMsg.includes("tasktype") || errorMsg.includes("task_type")) {
+          fieldHint = ` The issue is with taskType: "${validatedTask.taskType}"`;
+        } else if (errorMsg.includes("status")) {
+          fieldHint = ` The issue is with status: "${validatedTask.status}"`;
+        } else if (errorMsg.includes("priority")) {
+          fieldHint = ` The issue is with priority: "${validatedTask.priority}"`;
+        }
+        
+        const helpfulMsg = `Database enum validation failed.${fieldHint}\n\nThis usually means the database enum values don't match your code schema.\n\nTo fix this:\n1. Run: pnpm db:push\n2. Or run: pnpm db:generate && pnpm db:migrate\n\nIf the issue persists, the database may need to be recreated.`;
         throw new Error(helpfulMsg);
       }
       throw error;
