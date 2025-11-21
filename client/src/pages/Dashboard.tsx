@@ -261,8 +261,8 @@ export default function Dashboard() {
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-black tracking-tight">
             NLP Dashboard
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-            Create and manage your AI-powered NLP tasks
+          <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-2xl">
+            Create and manage your AI-powered NLP tasks with real-time processing and multi-agent collaboration
           </p>
         </div>
 
