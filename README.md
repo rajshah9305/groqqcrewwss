@@ -1,6 +1,6 @@
-# RAJAI PLATFORM
+# Groq + CrewAI Full-Stack Platform
 
-A production-ready, full-stack AI platform powered by Groq's fast inference API. This platform enables advanced Natural Language Processing tasks with real-time streaming, multi-agent collaboration via CrewAI, and a modern React-based interface.
+A production-ready, full-stack AI platform powered by **Groq's fast inference API** and **CrewAI's multi-agent orchestration**. This platform is designed for advanced Natural Language Processing tasks with real-time streaming and a modern React-based interface.
 
 ## 🚀 Features
 
@@ -18,7 +18,6 @@ A production-ready, full-stack AI platform powered by Groq's fast inference API.
 - **Type-Safe API**: Full-stack TypeScript with tRPC for end-to-end type safety
 - **Modern UI**: Beautiful, responsive interface built with React 19 and Tailwind CSS
 - **PostgreSQL Database**: Robust data persistence with Drizzle ORM
-- **Production Ready**: No mockups, no auth required, fully functional code
 
 ## 🛠 Tech Stack
 
@@ -26,7 +25,7 @@ A production-ready, full-stack AI platform powered by Groq's fast inference API.
 - **Node.js** with **Express** - Server runtime and framework
 - **tRPC** - Type-safe API layer
 - **Python 3.11+** - CrewAI agent orchestration
-- **Groq SDK** - Fast LLM inference (using `openai/gpt-oss-120b` model)
+- **Groq SDK** - Fast LLM inference
 - **Drizzle ORM** - Type-safe database queries
 - **PostgreSQL/Neon** - Production database
 
@@ -38,18 +37,13 @@ A production-ready, full-stack AI platform powered by Groq's fast inference API.
 - **TanStack Query** - Powerful data synchronization
 - **tRPC React** - Type-safe API client
 
-### AI & NLP
-- **Groq API** - Ultra-fast LLM inference
-- **CrewAI** - Multi-agent orchestration framework
-- **Multiple Agent Types**: Researcher, Writer, Analyst, Summarizer, Coder, Translator
-
 ## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** 22.x or higher ([Download](https://nodejs.org/))
-- **Python** 3.11 or higher ([Download](https://www.python.org/downloads/))
-- **pnpm** package manager ([Install](https://pnpm.io/installation))
+- **Node.js** 22.x or higher
+- **Python** 3.11 or higher
+- **pnpm** package manager
 - **PostgreSQL** database (or use [Neon](https://neon.tech/) for serverless PostgreSQL)
 - **Groq API Key** ([Get from Groq Console](https://console.groq.com/keys))
 
@@ -59,7 +53,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd rajai-platform
+cd groqqcrewwss
 ```
 
 ### 2. Install Dependencies
@@ -83,7 +77,7 @@ pip install -r requirements.txt
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the root directory by copying the example:
+Create a `.env` file in the root directory:
 
 ```bash
 cp .env.example .env
@@ -97,9 +91,6 @@ GROQ_API_KEY=your_groq_api_key_here
 
 # Database Configuration (PostgreSQL/Neon)
 DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
-
-# OpenAI API Key (dummy to disable OpenAI usage)
-OPENAI_API_KEY=dummy-key-to-disable-openai
 
 # Server Configuration
 NODE_ENV=development
@@ -131,32 +122,10 @@ pnpm dev
 
 The application will be available at `http://localhost:3000`
 
-## 📖 Usage
-
-### Creating an NLP Task
-
-1. Navigate to the **Dashboard** at `http://localhost:3000/dashboard`
-2. Fill in the task creation form:
-   - **Title**: Descriptive name for your task
-   - **Description**: What you want to accomplish
-   - **Task Type**: Select from available NLP operations
-   - **Input Text**: Paste your content to process
-   - **Priority**: Set task priority (low/medium/high)
-   - **Temperature**: Adjust creativity (0-100)
-   - **Multi-Agent**: Enable collaborative processing
-3. Click **Create & Execute** to start processing
-
-### Viewing Results
-
-- Tasks appear in the **All Tasks** tab with real-time status updates
-- Click on any task to view detailed results
-- Completed tasks show formatted output with markdown support
-- Failed tasks display error messages for debugging
-
 ## 🏗 Project Structure
 
 ```
-rajai-platform/
+groqqcrewwss/
 ├── api/                    # Vercel serverless functions
 │   └── trpc/              # tRPC API endpoint
 ├── client/                # Frontend React application
@@ -175,7 +144,6 @@ rajai-platform/
 │   └── crewai_service.py  # Python CrewAI service
 ├── drizzle/               # Database schema and migrations
 │   └── schema.ts          # Database table definitions
-├── venv/                  # Python virtual environment (gitignored)
 └── shared/                # Shared types and constants
 ```
 
@@ -186,161 +154,15 @@ rajai-platform/
 - `pnpm start` - Start production server
 - `pnpm check` - Type check without emitting files
 - `pnpm format` - Format code with Prettier
-- `pnpm test` - Run test suite
+- `pnpm test` - Run test suite (requires environment variables)
 - `pnpm db:push` - Push database schema changes
 - `pnpm db:generate` - Generate migration files
 - `pnpm db:migrate` - Run database migrations
 
-## 🌐 API Reference
-
-### tRPC Endpoints
-
-#### NLP Operations
-- `nlp.createTask` - Create a new NLP task
-- `nlp.executeTask` - Execute task with CrewAI
-- `nlp.streamTask` - Stream task execution with Groq
-- `nlp.getTasks` - Retrieve user's tasks
-- `nlp.getTask` - Get specific task details
-- `nlp.deleteTask` - Delete a task
-- `nlp.getTaskLogs` - View task execution logs
-
-#### Agent Management
-- `agents.createConfig` - Create agent configuration
-- `agents.getUserConfigs` - Get user's configurations
-- `agents.getPublicConfigs` - Browse public configurations
-- `agents.incrementUsage` - Track configuration usage
-
-#### User Preferences
-- `preferences.get` - Retrieve user preferences
-- `preferences.update` - Update preferences
-
-#### Results Management
-- `results.save` - Save task result
-- `results.getUserResults` - Get saved results
-
 ## 🚢 Deployment
 
-### Production Build
-
-```bash
-# Build the application
-pnpm build
-
-# Start production server
-pnpm start
-```
-
-### Environment Configuration
-
-Ensure all production environment variables are set:
-- `DATABASE_URL` - PostgreSQL connection string
-- `GROQ_API_KEY` - Your Groq API key
-- `NODE_ENV=production` - Production mode
-- `PORT` - Server port (optional, defaults to 3000)
-
-### Database Migration
-
-```bash
-# Push schema changes
-pnpm db:push
-```
-
-### Deploy to Vercel
-
-This project is configured for Vercel deployment:
-
-1. **Push your code to GitHub**
-2. **Import the repository in Vercel**
-3. **Set up the database schema** (run once before first deployment):
-   ```bash
-   # Set DATABASE_URL in your environment, then run:
-   pnpm db:push
-   ```
-   Or use the Vercel CLI:
-   ```bash
-   vercel env pull .env.local
-   pnpm db:push
-   ```
-4. **Add environment variables in Vercel dashboard**:
-   - Go to your project's **Settings** → **Environment Variables**
-   - Add the following variables (make sure to select **Production**, **Preview**, and **Development**):
-     - `DATABASE_URL` - Your PostgreSQL connection string (e.g., from Neon)
-     - `GROQ_API_KEY` - Your Groq API key from [Groq Console](https://console.groq.com/keys)
-     - `OPENAI_API_KEY` - Set to `dummy-key-to-disable-openai`
-   - Click **Save** after adding each variable
-5. **Deploy** - Vercel will automatically build and deploy
-6. **Verify the deployment**:
-   - Visit `https://your-app.vercel.app/api/health` to check database connection
-   - You should see a success message with `"status": "healthy"`
-
-**Important Notes:**
-- The database schema must be set up before the first deployment
-- After deployment, verify the database connection at: `https://your-app.vercel.app/api/health`
-- The default user is automatically created on first request
-- Database migrations should be run manually using `pnpm db:push` when schema changes
-
-The `vercel.json` file is already configured for optimal deployment.
-
-## 🧪 Testing
-
-Run the complete test suite:
-
-```bash
-pnpm test
-```
-
-## 🔒 Security
-
-- **No Authentication Required**: This is a demo platform without auth
-- **API Key Protection**: All API keys are server-side only
-- **Input Validation**: Comprehensive input sanitization with Zod
-- **SQL Injection Prevention**: Parameterized queries with Drizzle ORM
-
-## 🐛 Troubleshooting
-
-### Database Connection Issues
-
-If you encounter database connection errors:
-
-1. Verify your `DATABASE_URL` is correct
-2. Ensure your database is accessible
-3. Check SSL mode requirements (Neon requires `sslmode=require`)
-
-### Python/CrewAI Issues
-
-If CrewAI tasks fail:
-
-1. Ensure Python virtual environment is activated
-2. Verify all Python dependencies are installed: `pip install -r requirements.txt`
-3. Check that `GROQ_API_KEY` is set in the environment
-4. Verify the Python path in `server/crewai.ts` matches your setup
-
-### Groq API Issues
-
-If Groq API calls fail:
-
-1. Verify your `GROQ_API_KEY` is valid
-2. Check your Groq API quota/limits
-3. Ensure you're using a supported model (`openai/gpt-oss-120b`)
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
-## 🙏 Acknowledgments
-
-- **Groq** for ultra-fast LLM inference
-- **CrewAI** for multi-agent orchestration
-- **shadcn/ui** for beautiful components
-- **tRPC** for type-safe APIs
-
-## 🎨 Design
-
-**RAJAI PLATFORM** uses a clean, modern design with:
-- **Orange** for MVPs, highlights, and primary actions
-- **Black** text for optimal readability
-- **White** background for a clean, professional look
+This project is configured for Vercel deployment. Refer to the Vercel documentation for detailed setup, including setting environment variables for `DATABASE_URL` and `GROQ_API_KEY`.
 
 ---
 
-**RAJAI PLATFORM** - Built with ❤️ using Groq, CrewAI, and modern web technologies
+**Groq + CrewAI Platform** - Built with ❤️ using modern web technologies.
