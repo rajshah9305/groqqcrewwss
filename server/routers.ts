@@ -20,6 +20,7 @@ import {
 } from "./db";
 import { executeCrewAITask } from "./crewai";
 import { streamGroqCompletion } from "./groq";
+import { streamMOA, executeMOA, getMOAConfigForTaskType } from "./moa";
 import { TRPCError } from "@trpc/server";
 
 // Default userId to use when auth is disabled
@@ -73,15 +74,9 @@ export const appRouter = router({
           });
           return task;
         } catch (error) {
-          console.error("[tRPC] Error in createTask:", error);
-          console.error("[tRPC] Input data:", {
-            title: input.title,
-            description: input.description,
-            taskType: input.taskType,
-            inputData: input.inputData?.substring(0, 100) + "...",
-            priority: input.priority,
-            agentConfig: input.agentConfig,
-          });
+          if (process.env.NODE_ENV === "development") {
+            console.error("[tRPC] Error in createTask:", error);
+          }
 
           let errorMessage = "Unknown error occurred";
           let errorCode: "BAD_REQUEST" | "INTERNAL_SERVER_ERROR" =
@@ -168,26 +163,67 @@ export const appRouter = router({
         z.object({
           taskId: z.number(),
           temperature: z.number().min(0).max(100).optional(),
+          useMOA: z.boolean().optional().default(false),
         })
       )
       .mutation(async ({ input }) => {
         const task = await getNlpTaskById(input.taskId);
         if (!task)
           throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
-        await updateNlpTask(task.id, { status: "processing" });
+        await updateNlpTask(task.id, { status: "processing", outputData: "" });
         const startTime = Date.now();
         let fullResult = "";
+        let lastUpdateTime = Date.now();
+        const UPDATE_INTERVAL = 500; // Update database every 500ms
+        
         try {
           const systemPrompt = getSystemPromptForTaskType(task.taskType);
-          for await (const chunk of streamGroqCompletion(
-            [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: task.inputData },
-            ],
-            { temperature: input.temperature }
-          )) {
-            fullResult += chunk;
+          
+          if (input.useMOA) {
+            // Use MOA (Mixture of Agents) for enhanced responses
+            const moaConfig = getMOAConfigForTaskType(task.taskType);
+            for await (const chunk of streamMOA(
+              task.inputData,
+              systemPrompt,
+              {
+                ...moaConfig,
+                temperature: input.temperature,
+              }
+            )) {
+              fullResult += chunk.content;
+              
+              // Update database incrementally for real-time preview
+              const now = Date.now();
+              if (now - lastUpdateTime >= UPDATE_INTERVAL) {
+                await updateNlpTask(task.id, {
+                  outputData: fullResult,
+                });
+                lastUpdateTime = now;
+              }
+            }
+          } else {
+            // Use standard Groq streaming
+            for await (const chunk of streamGroqCompletion(
+              [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: task.inputData },
+              ],
+              { temperature: input.temperature }
+            )) {
+              fullResult += chunk;
+              
+              // Update database incrementally for real-time preview
+              const now = Date.now();
+              if (now - lastUpdateTime >= UPDATE_INTERVAL) {
+                await updateNlpTask(task.id, {
+                  outputData: fullResult,
+                });
+                lastUpdateTime = now;
+              }
+            }
           }
+          
+          // Final update with complete result
           const processingTime = Date.now() - startTime;
           await updateNlpTask(task.id, {
             status: "completed",
@@ -196,6 +232,63 @@ export const appRouter = router({
             completedAt: new Date(),
           });
           return { success: true, result: fullResult, processingTime };
+        } catch (error) {
+          const processingTime = Date.now() - startTime;
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+          await updateNlpTask(task.id, {
+            status: "failed",
+            errorMessage,
+            processingTime,
+            outputData: fullResult || undefined, // Save partial result if available
+          });
+          throw error;
+        }
+      }),
+
+    executeMOA: protectedProcedure
+      .input(
+        z.object({
+          taskId: z.number(),
+          temperature: z.number().min(0).max(100).optional(),
+          numCycles: z.number().min(1).max(5).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const task = await getNlpTaskById(input.taskId);
+        if (!task)
+          throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+        await updateNlpTask(task.id, { status: "processing" });
+        const startTime = Date.now();
+        try {
+          const systemPrompt = getSystemPromptForTaskType(task.taskType);
+          const moaConfig = getMOAConfigForTaskType(task.taskType);
+          
+          const result = await executeMOA(
+            task.inputData,
+            systemPrompt,
+            {
+              ...moaConfig,
+              temperature: input.temperature,
+              numCycles: input.numCycles,
+            }
+          );
+          
+          const processingTime = Date.now() - startTime;
+          await updateNlpTask(task.id, {
+            status: "completed",
+            outputData: result.finalResponse,
+            processingTime,
+            completedAt: new Date(),
+          });
+          
+          return {
+            success: true,
+            result: result.finalResponse,
+            initialResponse: result.initialResponse,
+            layerOutputs: result.layerOutputs,
+            processingTime,
+          };
         } catch (error) {
           const processingTime = Date.now() - startTime;
           const errorMessage =

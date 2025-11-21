@@ -24,17 +24,17 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
+        <div className="flex items-center justify-center min-h-screen p-8 bg-white">
+          <div className="flex flex-col items-center w-full max-w-2xl p-8 bg-white border border-gray-200 rounded-xl shadow-xl">
             <AlertTriangle
               size={48}
-              className="text-destructive mb-6 flex-shrink-0"
+              className="text-orange-500 mb-6 flex-shrink-0"
             />
 
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
+            <h2 className="text-xl mb-4 font-bold text-black">An unexpected error occurred.</h2>
 
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
+            <div className="p-4 w-full rounded-lg bg-gray-50 border border-gray-200 overflow-auto mb-6">
+              <pre className="text-sm text-gray-600 whitespace-break-spaces">
                 {this.state.error?.stack}
               </pre>
             </div>
@@ -43,8 +43,8 @@ class ErrorBoundary extends Component<Props, State> {
               onClick={() => window.location.reload()}
               className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-lg",
-                "bg-primary text-primary-foreground",
-                "hover:opacity-90 cursor-pointer"
+                "bg-orange-500 text-white hover:bg-orange-600",
+                "transition-colors cursor-pointer shadow-md hover:shadow-lg"
               )}
             >
               <RotateCcw size={16} />

@@ -12,24 +12,24 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-white px-4">
-      <Card className="w-full max-w-lg shadow-lg border-0 bg-white">
+      <Card className="w-full max-w-lg shadow-xl border-gray-200 bg-white">
         <CardContent className="pt-6 sm:pt-8 pb-6 sm:pb-8 px-4 sm:px-6 text-center">
           <div className="flex justify-center mb-4 sm:mb-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-red-100 rounded-full animate-pulse" />
-              <AlertCircle className="relative h-12 w-12 sm:h-16 sm:w-16 text-red-500" />
+              <div className="absolute inset-0 bg-orange-100 rounded-full animate-pulse" />
+              <AlertCircle className="relative h-12 w-12 sm:h-16 sm:w-16 text-orange-500" />
             </div>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
+          <h1 className="text-3xl sm:text-4xl font-bold text-black mb-2">
             404
           </h1>
 
-          <h2 className="text-lg sm:text-xl font-semibold text-slate-700 mb-3 sm:mb-4">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-700 mb-3 sm:mb-4">
             Page Not Found
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-600 mb-6 sm:mb-8 leading-relaxed px-2">
+          <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 leading-relaxed px-2">
             Sorry, the page you are looking for doesn't exist.
             <br />
             It may have been moved or deleted.

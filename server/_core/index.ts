@@ -54,7 +54,7 @@ async function startServer() {
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
 
-  if (port !== preferredPort) {
+  if (port !== preferredPort && process.env.NODE_ENV === "development") {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
@@ -63,4 +63,7 @@ async function startServer() {
   });
 }
 
-startServer().catch(console.error);
+startServer().catch((error) => {
+  console.error("Failed to start server:", error);
+  process.exit(1);
+});

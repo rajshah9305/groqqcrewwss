@@ -61,8 +61,10 @@ export default function Dashboard() {
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [temperature, setTemperature] = useState(0.7);
   const [multiAgent, setMultiAgent] = useState(false);
+  const [useMOA, setUseMOA] = useState(false);
   const [selectedTask, setSelectedTask] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<"tasks" | "details">("tasks");
+  const [streamingTaskId, setStreamingTaskId] = useState<number | null>(null);
 
   const utils = trpc.useUtils();
   const { data: tasks, isLoading: tasksLoading } = trpc.nlp.getTasks.useQuery({
@@ -71,7 +73,10 @@ export default function Dashboard() {
   const { data: selectedTaskData, isLoading: selectedTaskLoading } =
     trpc.nlp.getTask.useQuery(
       { id: selectedTask! },
-      { enabled: !!selectedTask }
+      { 
+        enabled: !!selectedTask && streamingTaskId !== selectedTask,
+        refetchInterval: streamingTaskId === selectedTask ? false : undefined,
+      }
     );
 
   const createTask = trpc.nlp.createTask.useMutation({
@@ -81,11 +86,33 @@ export default function Dashboard() {
       setTitle("");
       setDescription("");
       setInputData("");
-      executeTask.mutate({
-        taskId: task.id,
-        temperature: temperature * 100,
-        multiAgent,
-      });
+      
+      // Select the new task and switch to details tab for real-time preview
+      setSelectedTask(task.id);
+      setActiveTab("details");
+      setStreamingTaskId(task.id);
+      
+      // Use MOA if enabled, otherwise use CrewAI or direct execution
+      if (useMOA) {
+        streamTask.mutate({
+          taskId: task.id,
+          temperature: temperature * 100,
+          useMOA: true,
+        });
+      } else if (multiAgent) {
+        executeTask.mutate({
+          taskId: task.id,
+          temperature: temperature * 100,
+          multiAgent: true,
+        });
+      } else {
+        // Use streaming for standard mode too
+        streamTask.mutate({
+          taskId: task.id,
+          temperature: temperature * 100,
+          useMOA: false,
+        });
+      }
     },
     onError: error => {
       toast.error(`Failed to create task: ${error.message}`);
@@ -107,6 +134,36 @@ export default function Dashboard() {
       utils.nlp.getTasks.invalidate();
     },
   });
+
+  const streamTask = trpc.nlp.streamTask.useMutation({
+    onSuccess: result => {
+      setStreamingTaskId(null);
+      toast.success(
+        `Task completed in ${(result.processingTime / 1000).toFixed(2)}s`
+      );
+      utils.nlp.getTasks.invalidate();
+      if (selectedTask) {
+        utils.nlp.getTask.invalidate({ id: selectedTask });
+      }
+    },
+    onError: error => {
+      setStreamingTaskId(null);
+      toast.error(`Task execution failed: ${error.message}`);
+      utils.nlp.getTasks.invalidate();
+      if (selectedTask) {
+        utils.nlp.getTask.invalidate({ id: selectedTask });
+      }
+    },
+  });
+
+  // Poll for real-time updates during streaming
+  const { data: streamingTaskData } = trpc.nlp.getTask.useQuery(
+    { id: streamingTaskId! },
+    {
+      enabled: !!streamingTaskId,
+      refetchInterval: streamingTaskId ? 500 : false, // Poll every 500ms during streaming
+    }
+  );
 
   const deleteTask = trpc.nlp.deleteTask.useMutation({
     onSuccess: () => {
@@ -417,8 +474,12 @@ export default function Dashboard() {
                         id="multiAgent"
                         type="checkbox"
                         checked={multiAgent}
-                        onChange={e => setMultiAgent(e.target.checked)}
-                        className="mt-0.5 w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 focus:ring-2 cursor-pointer"
+                        onChange={e => {
+                          setMultiAgent(e.target.checked);
+                          if (e.target.checked) setUseMOA(false);
+                        }}
+                        disabled={useMOA}
+                        className="mt-0.5 w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 focus:ring-2 cursor-pointer disabled:opacity-50"
                       />
                       <div className="flex-1">
                         <Label
@@ -426,10 +487,39 @@ export default function Dashboard() {
                           className="text-xs font-semibold text-black cursor-pointer flex items-center gap-2"
                         >
                           <Users className="w-4 h-4 text-gray-500" />
-                          Multi-Agent Processing
+                          Multi-Agent Processing (CrewAI)
                         </Label>
                         <p className="text-xs text-gray-600 mt-1 leading-relaxed">
                           Enable collaborative AI agents for complex tasks
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* MOA (Mixture of Agents) Toggle */}
+                  <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-50/50 rounded-xl border border-purple-200 shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <input
+                        id="useMOA"
+                        type="checkbox"
+                        checked={useMOA}
+                        onChange={e => {
+                          setUseMOA(e.target.checked);
+                          if (e.target.checked) setMultiAgent(false);
+                        }}
+                        disabled={multiAgent}
+                        className="mt-0.5 w-4 h-4 rounded border-gray-300 text-purple-500 focus:ring-purple-500 focus:ring-2 cursor-pointer disabled:opacity-50"
+                      />
+                      <div className="flex-1">
+                        <Label
+                          htmlFor="useMOA"
+                          className="text-xs font-semibold text-black cursor-pointer flex items-center gap-2"
+                        >
+                          <Sparkles className="w-4 h-4 text-purple-500" />
+                          Mixture of Agents (MOA)
+                        </Label>
+                        <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                          Use multi-layer agent refinement for enhanced quality responses
                         </p>
                       </div>
                     </div>
@@ -439,9 +529,9 @@ export default function Dashboard() {
                   <Button
                     type="submit"
                     className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
-                    disabled={createTask.isPending || executeTask.isPending}
+                    disabled={createTask.isPending || executeTask.isPending || streamTask.isPending}
                   >
-                    {createTask.isPending || executeTask.isPending ? (
+                    {createTask.isPending || executeTask.isPending || streamTask.isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         <span className="flex items-center gap-2">
@@ -732,18 +822,30 @@ export default function Dashboard() {
                           <div className="min-w-0 flex-1 space-y-2">
                             <div className="flex items-center gap-3">
                               <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
-                                {getTaskTypeIcon(selectedTaskData.taskType)}
+                                {getTaskTypeIcon(
+                                  (streamingTaskId === selectedTask && streamingTaskData?.taskType) || 
+                                  selectedTaskData?.taskType || 
+                                  "custom"
+                                )}
                               </div>
                               <CardTitle className="text-2xl font-bold text-black break-words">
-                                {selectedTaskData.title}
+                                {(streamingTaskId === selectedTask && streamingTaskData?.title) || 
+                                 selectedTaskData?.title || 
+                                 "Loading..."}
                               </CardTitle>
                             </div>
                             <CardDescription className="text-base text-gray-600 break-words leading-relaxed">
-                              {selectedTaskData.description}
+                              {(streamingTaskId === selectedTask && streamingTaskData?.description) || 
+                               selectedTaskData?.description || 
+                               ""}
                             </CardDescription>
                           </div>
                           <div className="shrink-0">
-                            {getStatusBadge(selectedTaskData.status)}
+                            {getStatusBadge(
+                              (streamingTaskId === selectedTask && streamingTaskData?.status) || 
+                              selectedTaskData?.status || 
+                              "pending"
+                            )}
                           </div>
                         </div>
                       </CardHeader>
@@ -759,12 +861,15 @@ export default function Dashboard() {
                           </div>
                           <div className="mt-2 p-5 bg-gray-50 rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
                             <pre className="whitespace-pre-wrap text-sm text-gray-800 break-words font-mono leading-relaxed">
-                              {selectedTaskData.inputData}
+                              {(streamingTaskId === selectedTask && streamingTaskData?.inputData) || 
+                               selectedTaskData?.inputData || 
+                               ""}
                             </pre>
                           </div>
                         </div>
 
-                        {selectedTaskData.outputData && (
+                        {(selectedTaskData.outputData || 
+                          (streamingTaskId === selectedTask && streamingTaskData?.outputData)) && (
                           <div>
                             <div className="flex items-center gap-2.5 mb-4">
                               <div className="p-1.5 rounded-lg bg-orange-100">
@@ -772,13 +877,24 @@ export default function Dashboard() {
                               </div>
                               <Label className="text-sm font-semibold text-black">
                                 Output
+                                {streamingTaskId === selectedTask && (
+                                  <span className="ml-2 inline-flex items-center gap-1 text-xs text-orange-600">
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                    Streaming...
+                                  </span>
+                                )}
                               </Label>
                             </div>
                             <div className="mt-2 p-6 bg-gradient-to-br from-orange-50 via-orange-50/80 to-orange-50/50 rounded-xl border-2 border-orange-200 overflow-x-auto shadow-md">
                               <div className="prose prose-sm max-w-none">
                                 <Streamdown>
-                                  {selectedTaskData.outputData}
+                                  {streamingTaskId === selectedTask && streamingTaskData?.outputData
+                                    ? streamingTaskData.outputData
+                                    : selectedTaskData.outputData}
                                 </Streamdown>
+                                {streamingTaskId === selectedTask && (
+                                  <span className="inline-block w-2 h-4 ml-1 bg-orange-500 animate-pulse" />
+                                )}
                               </div>
                             </div>
                           </div>
@@ -898,3 +1014,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

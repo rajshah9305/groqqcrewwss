@@ -17,6 +17,7 @@ A production-ready, full-stack AI platform powered by **Groq's fast inference AP
 
 - **Real-Time Streaming**: Live progress updates during task execution via Groq API
 - **Multi-Agent Processing**: CrewAI-powered collaborative AI agents
+- **Mixture of Agents (MOA)**: Multi-layer agent refinement for enhanced response quality
 - **Type-Safe API**: Full-stack TypeScript with tRPC for end-to-end type safety
 - **Modern UI**: Beautiful, responsive interface built with React 19 and Tailwind CSS
 - **PostgreSQL Database**: Robust data persistence with Drizzle ORM
@@ -45,6 +46,7 @@ A production-ready, full-stack AI platform powered by **Groq's fast inference AP
 
 - **Groq API** - Ultra-fast LLM inference
 - **CrewAI** - Multi-agent orchestration framework
+- **Mixture of Agents (MOA)** - Multi-layer agent refinement architecture
 - **Multiple Agent Types**: Researcher, Writer, Analyst, Summarizer, Coder, Translator
 
 ## 📋 Prerequisites
@@ -150,6 +152,7 @@ groqqcrewwss/
 │   ├── db.ts              # Database operations
 │   ├── routers.ts         # tRPC routers
 │   ├── groq.ts            # Groq API integration
+│   ├── moa.ts             # Mixture of Agents implementation
 │   ├── crewai.ts          # CrewAI Node.js wrapper
 │   └── crewai_service.py  # Python CrewAI service
 ├── drizzle/               # Database schema and migrations
@@ -177,7 +180,8 @@ groqqcrewwss/
 
 - `nlp.createTask` - Create a new NLP task
 - `nlp.executeTask` - Execute task with CrewAI
-- `nlp.streamTask` - Stream task execution with Groq
+- `nlp.streamTask` - Stream task execution with Groq (supports MOA mode)
+- `nlp.executeMOA` - Execute task using Mixture of Agents architecture
 - `nlp.getTasks` - Retrieve user's tasks
 - `nlp.getTask` - Get specific task details
 - `nlp.deleteTask` - Delete a task
@@ -234,26 +238,24 @@ This project is configured for Vercel deployment:
 
 1. **Push your code to GitHub**
 2. **Import the repository in Vercel**
-3. **Set up the database schema** (run once before first deployment):
+3. **Add environment variables in Vercel dashboard**:
+   - `DATABASE_URL` - Your PostgreSQL connection string (required)
+   - `GROQ_API_KEY` - Your Groq API key (required)
+   - `OPENAI_API_KEY` - Set to `dummy-key-to-disable-openai` (required for CrewAI)
+   - `NODE_ENV` - Set to `production`
+4. **Set up the database schema** (run once after adding DATABASE_URL):
    ```bash
-   # Set DATABASE_URL in your environment, then run:
-   pnpm db:push
-   ```
-   Or use the Vercel CLI:
-   ```bash
+   # Using Vercel CLI:
    vercel env pull .env.local
    pnpm db:push
+   pnpm db:init
    ```
-4. **Add environment variables in Vercel dashboard**:
-   - `DATABASE_URL` - Your PostgreSQL connection string
-   - `GROQ_API_KEY` - Your Groq API key
-   - `OPENAI_API_KEY` - Set to `dummy-key-to-disable-openai`
-   - `NODE_ENV` - Set to `production`
+   Or manually connect to your database and run the migrations from `drizzle/` folder
 5. **Deploy** - Vercel will automatically build and deploy
 
 **Important Notes:**
 
-- The database schema must be set up before the first deployment
+- The database schema must be set up after adding DATABASE_URL environment variable
 - After deployment, verify the database connection at: `https://your-app.vercel.app/api/health`
 - The default user is automatically created on first request
 - Database migrations should be run manually using `pnpm db:push` when schema changes

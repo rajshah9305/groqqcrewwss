@@ -67,7 +67,9 @@ function shouldBypassDatabase() {
 function logInMemoryUsage(reason?: string) {
   if (!hasLoggedInMemoryFallback) {
     const suffix = reason ? ` (${reason})` : "";
-    console.warn(`[Database] Falling back to in-memory store${suffix}`);
+    if (process.env.NODE_ENV === "development") {
+      console.warn(`[Database] Falling back to in-memory store${suffix}`);
+    }
     hasLoggedInMemoryFallback = true;
   }
 }
@@ -228,15 +230,19 @@ export async function getDb() {
   if (!_db) {
     const databaseUrl = process.env.DATABASE_URL;
     if (!databaseUrl) {
-      console.warn("[Database] DATABASE_URL environment variable is not set");
-      console.warn(
-        "[Database] Check if .env file exists and contains DATABASE_URL"
-      );
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[Database] DATABASE_URL environment variable is not set");
+        console.warn(
+          "[Database] Check if .env file exists and contains DATABASE_URL"
+        );
+      }
       forceInMemoryDb = true;
       logInMemoryUsage("missing DATABASE_URL");
       return null;
     }
-    console.log("[Database] DATABASE_URL found, attempting connection...");
+    if (process.env.NODE_ENV === "development") {
+      console.log("[Database] DATABASE_URL found, attempting connection...");
+    }
 
     try {
       // Handle both connection string formats (with and without psql prefix)
@@ -280,13 +286,17 @@ export async function getDb() {
       }
 
       _db = drizzle(pool);
-      console.log("[Database] ✓ Connected successfully to database");
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Database] ✓ Connected successfully to database");
+      }
     } catch (error) {
-      console.error("[Database] ❌ Failed to connect to database:", error);
-      if (error instanceof Error) {
-        console.error("[Database] Error message:", error.message);
-        if ("code" in error && typeof error.code === "string") {
-          console.error("[Database] Error code:", error.code);
+      if (process.env.NODE_ENV === "development") {
+        console.error("[Database] ❌ Failed to connect to database:", error);
+        if (error instanceof Error) {
+          console.error("[Database] Error message:", error.message);
+          if ("code" in error && typeof error.code === "string") {
+            console.error("[Database] Error code:", error.code);
+          }
         }
       }
       _db = null;
@@ -395,7 +405,9 @@ export async function ensureDefaultUser(): Promise<void> {
         email: "default@example.com",
         role: "user",
       });
-      console.log("[Database] Created default user");
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Database] Created default user");
+      }
     }
   } catch (error) {
     console.error("[Database] Failed to ensure default user:", error);
@@ -412,25 +424,28 @@ export async function createNlpTask(task: InsertNlpTask): Promise<NlpTask> {
     return newTask;
   }
 
+  // Validate and sanitize task data before insertion
+  const taskData = {
+    userId: task.userId || 1,
+    title: task.title!.trim(),
+    description: task.description!.trim(),
+    taskType: task.taskType,
+    status: task.status || "pending",
+    priority: task.priority || "medium",
+    inputData: task.inputData!.trim(),
+    outputData: task.outputData || null,
+    agentConfig: task.agentConfig || null,
+    errorMessage: task.errorMessage || null,
+    processingTime: task.processingTime || null,
+    tokensUsed: task.tokensUsed || null,
+    createdAt: task.createdAt ? toDate(task.createdAt) : new Date(),
+    updatedAt: task.updatedAt ? toDate(task.updatedAt) : new Date(),
+    completedAt: toNullableDate(task.completedAt),
+  };
+
   try {
     // Ensure default user exists before creating task
     await ensureDefaultUser();
-
-    // Validate and sanitize task data before insertion
-    const taskData = {
-      userId: task.userId || 1,
-      title: task.title!.trim(),
-      description: task.description!.trim(),
-      taskType: task.taskType,
-      status: task.status || "pending",
-      priority: task.priority || "medium",
-      inputData: task.inputData!.trim(),
-      outputData: task.outputData || null,
-      agentConfig: task.agentConfig || null,
-      errorMessage: task.errorMessage || null,
-      processingTime: task.processingTime || null,
-      tokensUsed: task.tokensUsed || null,
-    };
 
     // Validate enum values
     const validTaskTypes = [
