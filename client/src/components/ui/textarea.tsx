@@ -7,8 +7,7 @@ function Textarea({
   onCompositionStart,
   onCompositionEnd,
   ...props
-}: React.ComponentProps<"textarea">)
-
+}: React.ComponentProps<"textarea">) {
   return (
     <textarea
       data-slot="textarea"
