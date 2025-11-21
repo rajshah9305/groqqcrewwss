@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Starting Groq + CrewAI Platform..."
+echo "🚀 Starting RAJ AI PLATFORM..."
 
 # Check if .env exists
 if [ ! -f ".env" ]; then

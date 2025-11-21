@@ -1,4 +1,6 @@
-# Project Structure
+# RAJ AI PLATFORM - Project Structure
+
+**Developed by RAJ SHAH**
 
 ## Essential Files Only
 

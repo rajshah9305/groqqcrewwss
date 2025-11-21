@@ -1,4 +1,6 @@
-# Groq + CrewAI Full-Stack Platform
+# RAJ AI PLATFORM
+
+**Developed by RAJ SHAH**
 
 A production-ready, full-stack AI platform powered by **Groq's fast inference API** and **CrewAI's multi-agent orchestration**. This platform is designed for advanced Natural Language Processing tasks with real-time streaming and a modern React-based interface.
 
@@ -325,4 +327,4 @@ This project is licensed under the MIT License.
 
 ---
 
-**Groq + CrewAI Platform** - Built with ❤️ using modern web technologies.
+**RAJ AI PLATFORM** - Built with ❤️ by RAJ SHAH using modern web technologies.

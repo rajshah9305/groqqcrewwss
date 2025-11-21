@@ -1,5 +1,5 @@
 {
-  "name": "rajai-platform",
+  "name": "raj-ai-platform",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
@@ -110,13 +110,13 @@
       "tailwindcss>nanoid": "3.3.7"
     }
   },
-  "description": "A production-ready, full-stack AI platform powered by Groq's fast inference API. This platform enables advanced Natural Language Processing tasks with real-time streaming, multi-agent collaboration via CrewAI, and a modern React-based interface.",
+  "description": "RAJ AI PLATFORM - A production-ready, full-stack AI platform developed by RAJ SHAH. Powered by Groq's fast inference API with advanced NLP processing, real-time streaming, and multi-agent collaboration via CrewAI.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rajshah9305/groqqcrewwss.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "RAJ SHAH <rajshah9305@gmail.com>",
   "bugs": {
     "url": "https://github.com/rajshah9305/groqqcrewwss/issues"
   },

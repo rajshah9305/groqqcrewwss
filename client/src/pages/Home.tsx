@@ -243,7 +243,7 @@ export default function Home() {
       <footer className="border-t border-gray-200 bg-white py-6 sm:py-8">
         <div className="container text-center text-gray-600 px-4">
           <p className="text-sm sm:text-base">
-            © 2025 {APP_TITLE}. Powered by CrewAI and Groq.
+            © 2025 {APP_TITLE}. Developed by RAJ SHAH. Powered by CrewAI and Groq.
           </p>
         </div>
       </footer>

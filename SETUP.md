@@ -1,6 +1,8 @@
-# Quick Setup Guide
+# RAJ AI PLATFORM - Quick Setup Guide
 
-This guide will help you get the Groq + CrewAI platform running quickly.
+**Developed by RAJ SHAH**
+
+This guide will help you get the RAJ AI PLATFORM running quickly.
 
 ## Prerequisites
 

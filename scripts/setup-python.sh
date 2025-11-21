@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Setup Python environment for the project
-echo "Setting up Python environment..."
+# Setup Python environment for RAJ AI PLATFORM
+echo "Setting up Python environment for RAJ AI PLATFORM..."
 
 # Check if Python 3.11+ is available
 if command -v python3.11 &> /dev/null; then
@@ -39,5 +39,5 @@ pip install --upgrade pip
 echo "Installing Python dependencies..."
 pip install -r requirements.txt
 
-echo "Python environment setup complete!"
+echo "RAJ AI PLATFORM Python environment setup complete!"
 echo "To activate the environment manually, run: source venv/bin/activate"

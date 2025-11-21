@@ -1,5 +1,6 @@
 /**
- * Mixture of Agents (MOA) Implementation
+ * RAJ AI PLATFORM - Mixture of Agents (MOA) Implementation
+ * Developed by RAJ SHAH
  * 
  * MOA is a multi-layer agent architecture where:
  * 1. A main model generates an initial response

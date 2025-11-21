@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-CrewAI Service - Python backend for multi-agent NLP processing
+RAJ AI PLATFORM - CrewAI Service
+Developed by RAJ SHAH
+
+Python backend for multi-agent NLP processing
 """
 import os
 import sys
