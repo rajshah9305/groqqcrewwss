@@ -418,9 +418,7 @@
         "user_preferences_userId_unique": {
           "name": "user_preferences_userId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         }
       },
       "policies": {},
@@ -498,9 +496,7 @@
         "users_openId_unique": {
           "name": "users_openId_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         }
       },
       "policies": {},
@@ -525,49 +521,27 @@
     "public.format": {
       "name": "format",
       "schema": "public",
-      "values": [
-        "json",
-        "markdown",
-        "text",
-        "pdf"
-      ]
+      "values": ["json", "markdown", "text", "pdf"]
     },
     "public.logLevel": {
       "name": "logLevel",
       "schema": "public",
-      "values": [
-        "info",
-        "warning",
-        "error",
-        "debug"
-      ]
+      "values": ["info", "warning", "error", "debug"]
     },
     "public.priority": {
       "name": "priority",
       "schema": "public",
-      "values": [
-        "low",
-        "medium",
-        "high"
-      ]
+      "values": ["low", "medium", "high"]
     },
     "public.role": {
       "name": "role",
       "schema": "public",
-      "values": [
-        "user",
-        "admin"
-      ]
+      "values": ["user", "admin"]
     },
     "public.status": {
       "name": "status",
       "schema": "public",
-      "values": [
-        "pending",
-        "processing",
-        "completed",
-        "failed"
-      ]
+      "values": ["pending", "processing", "completed", "failed"]
     },
     "public.taskType": {
       "name": "taskType",
@@ -585,11 +559,7 @@
     "public.theme": {
       "name": "theme",
       "schema": "public",
-      "values": [
-        "light",
-        "dark",
-        "system"
-      ]
+      "values": ["light", "dark", "system"]
     }
   },
   "schemas": {},

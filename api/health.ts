@@ -7,11 +7,11 @@ import { sql } from "drizzle-orm";
  */
 export default async function handler(req: Request): Promise<Response> {
   const startTime = Date.now();
-  
+
   try {
     // Test database connection
     const db = await getDb();
-    
+
     if (!db) {
       return new Response(
         JSON.stringify({
@@ -28,9 +28,9 @@ export default async function handler(req: Request): Promise<Response> {
 
     // Try a simple query
     await db.execute(sql`SELECT 1`);
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     return new Response(
       JSON.stringify({
         status: "healthy",
@@ -45,8 +45,9 @@ export default async function handler(req: Request): Promise<Response> {
     );
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
     return new Response(
       JSON.stringify({
         status: "error",
@@ -61,4 +62,3 @@ export default async function handler(req: Request): Promise<Response> {
     );
   }
 }
-

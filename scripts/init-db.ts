@@ -9,12 +9,14 @@ import { getDb, ensureDefaultUser } from "../server/db";
 
 async function initDatabase() {
   console.log("[DB Init] Starting database initialization...");
-  
+
   try {
     // Test database connection
     const db = await getDb();
     if (!db) {
-      console.error("[DB Init] ❌ Database connection failed - DATABASE_URL not set or invalid");
+      console.error(
+        "[DB Init] ❌ Database connection failed - DATABASE_URL not set or invalid"
+      );
       process.exit(1);
     }
 
@@ -38,4 +40,3 @@ async function initDatabase() {
 }
 
 initDatabase();
-

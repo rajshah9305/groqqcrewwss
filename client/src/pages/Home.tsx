@@ -1,12 +1,28 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { APP_TITLE } from "@/const";
-import { ArrowRight, Bot, Sparkles, Zap, Brain, Code, FileText, BarChart3, Languages, Wand2 } from "lucide-react";
+import {
+  ArrowRight,
+  Bot,
+  Sparkles,
+  Zap,
+  Brain,
+  Code,
+  FileText,
+  BarChart3,
+  Languages,
+  Wand2,
+} from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
-
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -22,7 +38,10 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             <Link href="/dashboard">
-              <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm px-3 sm:px-4">
+              <Button
+                size="sm"
+                className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm px-3 sm:px-4"
+              >
                 Get Started
               </Button>
             </Link>
@@ -44,12 +63,16 @@ export default function Home() {
             with Multi-Agent AI
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-700 mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
-            Harness the power of collaborative AI agents to transform your text into actionable insights.
-            Real-time streaming, advanced analysis, and production-ready results.
+            Harness the power of collaborative AI agents to transform your text
+            into actionable insights. Real-time streaming, advanced analysis,
+            and production-ready results.
           </p>
           <div className="flex gap-3 sm:gap-4 justify-center px-2">
             <Link href="/dashboard" className="w-full sm:w-auto">
-              <Button size="lg" className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white text-base sm:text-lg px-6 sm:px-8">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white text-base sm:text-lg px-6 sm:px-8"
+              >
                 Start Processing
                 <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
@@ -61,12 +84,15 @@ export default function Home() {
       {/* Features Grid */}
       <section className="container py-12 sm:py-16">
         <div className="text-center mb-8 sm:mb-12 px-4">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 text-gray-900">Powerful NLP Capabilities</h2>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 text-gray-900">
+            Powerful NLP Capabilities
+          </h2>
           <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
-            Multiple specialized AI agents working together to deliver exceptional results
+            Multiple specialized AI agents working together to deliver
+            exceptional results
           </p>
         </div>
-        
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-4">
           <Card className="border-gray-200 hover:shadow-xl transition-shadow bg-white">
             <CardHeader>
@@ -75,7 +101,8 @@ export default function Home() {
               </div>
               <CardTitle>Text Summarization</CardTitle>
               <CardDescription>
-                Condense lengthy documents into clear, concise summaries while preserving key information
+                Condense lengthy documents into clear, concise summaries while
+                preserving key information
               </CardDescription>
             </CardHeader>
           </Card>
@@ -87,7 +114,8 @@ export default function Home() {
               </div>
               <CardTitle>Data Analysis</CardTitle>
               <CardDescription>
-                Extract insights, identify patterns, and generate actionable recommendations from your data
+                Extract insights, identify patterns, and generate actionable
+                recommendations from your data
               </CardDescription>
             </CardHeader>
           </Card>
@@ -99,7 +127,8 @@ export default function Home() {
               </div>
               <CardTitle>Research & Analysis</CardTitle>
               <CardDescription>
-                Comprehensive research with multiple agents collaborating to gather and synthesize information
+                Comprehensive research with multiple agents collaborating to
+                gather and synthesize information
               </CardDescription>
             </CardHeader>
           </Card>
@@ -111,7 +140,8 @@ export default function Home() {
               </div>
               <CardTitle>Content Generation</CardTitle>
               <CardDescription>
-                Create engaging, well-structured content tailored to your specific requirements
+                Create engaging, well-structured content tailored to your
+                specific requirements
               </CardDescription>
             </CardHeader>
           </Card>
@@ -123,7 +153,8 @@ export default function Home() {
               </div>
               <CardTitle>Code Generation</CardTitle>
               <CardDescription>
-                Generate clean, production-ready code with best practices and comprehensive documentation
+                Generate clean, production-ready code with best practices and
+                comprehensive documentation
               </CardDescription>
             </CardHeader>
           </Card>
@@ -135,7 +166,8 @@ export default function Home() {
               </div>
               <CardTitle>Translation</CardTitle>
               <CardDescription>
-                Accurate translations preserving context, tone, and cultural nuances across languages
+                Accurate translations preserving context, tone, and cultural
+                nuances across languages
               </CardDescription>
             </CardHeader>
           </Card>
@@ -151,9 +183,12 @@ export default function Home() {
                 <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
             </div>
-            <CardTitle className="text-xl sm:text-2xl lg:text-3xl">Real-Time Streaming</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl lg:text-3xl">
+              Real-Time Streaming
+            </CardTitle>
             <CardDescription className="text-sm sm:text-base lg:text-lg">
-              Watch AI agents process your requests in real-time with live progress updates
+              Watch AI agents process your requests in real-time with live
+              progress updates
             </CardDescription>
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
@@ -163,10 +198,18 @@ export default function Home() {
                 <span>Processing with CrewAI agents...</span>
               </div>
               <div className="space-y-1 sm:space-y-2 text-gray-300">
-                <div className="break-words">→ Researcher agent analyzing input...</div>
-                <div className="break-words">→ Analyst agent identifying patterns...</div>
-                <div className="break-words">→ Writer agent generating output...</div>
-                <div className="text-green-400 break-words">✓ Task completed successfully</div>
+                <div className="break-words">
+                  → Researcher agent analyzing input...
+                </div>
+                <div className="break-words">
+                  → Analyst agent identifying patterns...
+                </div>
+                <div className="break-words">
+                  → Writer agent generating output...
+                </div>
+                <div className="text-green-400 break-words">
+                  ✓ Task completed successfully
+                </div>
               </div>
             </div>
           </CardContent>
@@ -176,12 +219,19 @@ export default function Home() {
       {/* CTA Section */}
       <section className="container py-12 sm:py-16 lg:py-20 text-center px-4">
         <div className="max-w-3xl mx-auto bg-orange-500 rounded-xl sm:rounded-2xl p-6 sm:p-8 lg:p-12 text-white">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">Ready to Transform Your Workflow?</h2>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">
+            Ready to Transform Your Workflow?
+          </h2>
           <p className="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 text-orange-50">
-            Join thousands of users leveraging AI-powered NLP processing for their projects
+            Join thousands of users leveraging AI-powered NLP processing for
+            their projects
           </p>
           <Link href="/dashboard" className="inline-block w-full sm:w-auto">
-            <Button size="lg" variant="secondary" className="w-full sm:w-auto bg-white text-orange-600 hover:bg-orange-50 text-base sm:text-lg px-6 sm:px-8">
+            <Button
+              size="lg"
+              variant="secondary"
+              className="w-full sm:w-auto bg-white text-orange-600 hover:bg-orange-50 text-base sm:text-lg px-6 sm:px-8"
+            >
               Get Started Now
               <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
@@ -192,7 +242,9 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white py-6 sm:py-8">
         <div className="container text-center text-gray-600 px-4">
-          <p className="text-sm sm:text-base">© 2025 {APP_TITLE}. Powered by CrewAI and Groq.</p>
+          <p className="text-sm sm:text-base">
+            © 2025 {APP_TITLE}. Powered by CrewAI and Groq.
+          </p>
         </div>
       </footer>
     </div>

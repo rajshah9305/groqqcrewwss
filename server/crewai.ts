@@ -7,7 +7,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export interface CrewAITaskConfig {
-  taskType: "summarization" | "analysis" | "research" | "content_generation" | "code_generation" | "translation" | "custom";
+  taskType:
+    | "summarization"
+    | "analysis"
+    | "research"
+    | "content_generation"
+    | "code_generation"
+    | "translation"
+    | "custom";
   inputData: string;
   temperature?: number;
   maxTokens?: number;
@@ -33,7 +40,9 @@ const PYTHON_VENV_PATH = path.join(
 );
 const CREWAI_SERVICE_PATH = path.join(__dirname, "crewai_service.py");
 
-export async function executeCrewAITask(config: CrewAITaskConfig): Promise<CrewAIResult> {
+export async function executeCrewAITask(
+  config: CrewAITaskConfig
+): Promise<CrewAIResult> {
   return new Promise((resolve, reject) => {
     const taskConfig = {
       task_type: config.taskType,
@@ -44,28 +53,34 @@ export async function executeCrewAITask(config: CrewAITaskConfig): Promise<CrewA
     };
 
     const configJson = JSON.stringify(taskConfig);
-    
-    const pythonProcess = spawn(PYTHON_VENV_PATH, [CREWAI_SERVICE_PATH, configJson], {
-      env: {
-        ...process.env,
-        GROQ_API_KEY: ENV.groqApiKey,
-      },
-    });
+
+    const pythonProcess = spawn(
+      PYTHON_VENV_PATH,
+      [CREWAI_SERVICE_PATH, configJson],
+      {
+        env: {
+          ...process.env,
+          GROQ_API_KEY: ENV.groqApiKey,
+        },
+      }
+    );
 
     let outputData = "";
     let errorData = "";
 
-    pythonProcess.stdout.on("data", (data) => {
+    pythonProcess.stdout.on("data", data => {
       outputData += data.toString();
     });
 
-    pythonProcess.stderr.on("data", (data) => {
+    pythonProcess.stderr.on("data", data => {
       errorData += data.toString();
     });
 
-    pythonProcess.on("close", (code) => {
+    pythonProcess.on("close", code => {
       if (code !== 0) {
-        reject(new Error(`CrewAI process exited with code ${code}: ${errorData}`));
+        reject(
+          new Error(`CrewAI process exited with code ${code}: ${errorData}`)
+        );
         return;
       }
 
@@ -73,12 +88,12 @@ export async function executeCrewAITask(config: CrewAITaskConfig): Promise<CrewA
         // Extract JSON from output - find the last valid JSON line
         const lines = outputData.trim().split("\n");
         let result: CrewAIResult | null = null;
-        
+
         // Try to find JSON starting from the last line and working backwards
         for (let i = lines.length - 1; i >= 0; i--) {
           const line = lines[i].trim();
           if (!line) continue;
-          
+
           // Check if line looks like JSON (starts with { or [)
           if (line.startsWith("{") || line.startsWith("[")) {
             try {
@@ -90,7 +105,7 @@ export async function executeCrewAITask(config: CrewAITaskConfig): Promise<CrewA
             }
           }
         }
-        
+
         // If no JSON found in lines, try parsing the entire output
         if (!result) {
           try {
@@ -101,32 +116,42 @@ export async function executeCrewAITask(config: CrewAITaskConfig): Promise<CrewA
             if (jsonMatch) {
               result = JSON.parse(jsonMatch[0]);
             } else {
-              throw new Error(`No valid JSON found in output. Output: ${outputData.substring(0, 500)}`);
+              throw new Error(
+                `No valid JSON found in output. Output: ${outputData.substring(0, 500)}`
+              );
             }
           }
         }
-        
+
         if (result) {
           resolve(result);
         } else {
-          throw new Error(`Failed to parse JSON from output: ${outputData.substring(0, 500)}`);
+          throw new Error(
+            `Failed to parse JSON from output: ${outputData.substring(0, 500)}`
+          );
         }
       } catch (error) {
-        reject(new Error(`Failed to parse CrewAI output: ${error instanceof Error ? error.message : String(error)}. Output: ${outputData.substring(0, 500)}`));
+        reject(
+          new Error(
+            `Failed to parse CrewAI output: ${error instanceof Error ? error.message : String(error)}. Output: ${outputData.substring(0, 500)}`
+          )
+        );
       }
     });
 
-    pythonProcess.on("error", (error) => {
+    pythonProcess.on("error", error => {
       reject(new Error(`Failed to start CrewAI process: ${error.message}`));
     });
   });
 }
 
-export async function* streamCrewAITask(config: CrewAITaskConfig): AsyncGenerator<string, void, unknown> {
+export async function* streamCrewAITask(
+  config: CrewAITaskConfig
+): AsyncGenerator<string, void, unknown> {
   // For streaming, we'll execute the task and yield chunks of the result
   // This is a simplified version - full streaming would require modifying the Python service
   const result = await executeCrewAITask(config);
-  
+
   if (!result.success || !result.result) {
     throw new Error(result.error || "Task execution failed");
   }

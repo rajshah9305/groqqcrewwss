@@ -16,7 +16,7 @@ export default async function handler(req: Request): Promise<Response> {
       if (db) {
         console.log("[Serverless] ✓ Database connection verified");
         dbConnectionTested = true;
-        
+
         // Ensure default user exists
         if (!defaultUserEnsured) {
           try {
@@ -29,7 +29,9 @@ export default async function handler(req: Request): Promise<Response> {
           }
         }
       } else {
-        console.error("[Serverless] ❌ Database connection failed - DATABASE_URL may be missing or invalid");
+        console.error(
+          "[Serverless] ❌ Database connection failed - DATABASE_URL may be missing or invalid"
+        );
       }
     } catch (error) {
       console.error("[Serverless] ❌ Database connection error:", error);
@@ -57,4 +59,3 @@ export default async function handler(req: Request): Promise<Response> {
     },
   });
 }
-

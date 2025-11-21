@@ -1,4 +1,13 @@
-import { serial, integer, pgEnum, pgTable, text, timestamp, boolean, varchar } from "drizzle-orm/pg-core";
+import {
+  serial,
+  integer,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 /**
  * Core user table backing auth flow.
@@ -30,10 +39,15 @@ export const taskTypeEnum = pgEnum("taskType", [
   "content_generation",
   "code_generation",
   "translation",
-  "custom"
+  "custom",
 ]);
 
-export const statusEnum = pgEnum("status", ["pending", "processing", "completed", "failed"]);
+export const statusEnum = pgEnum("status", [
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+]);
 export const priorityEnum = pgEnum("priority", ["low", "medium", "high"]);
 
 export const nlpTasks = pgTable("nlp_tasks", {
@@ -68,7 +82,7 @@ export const agentTypeEnum = pgEnum("agentType", [
   "summarizer",
   "coder",
   "translator",
-  "custom"
+  "custom",
 ]);
 
 export const agentConfigs = pgTable("agent_configs", {
@@ -93,7 +107,12 @@ export type InsertAgentConfig = typeof agentConfigs.$inferInsert;
 /**
  * Task execution logs for debugging and analytics
  */
-export const logLevelEnum = pgEnum("logLevel", ["info", "warning", "error", "debug"]);
+export const logLevelEnum = pgEnum("logLevel", [
+  "info",
+  "warning",
+  "error",
+  "debug",
+]);
 
 export const taskLogs = pgTable("task_logs", {
   id: serial("id").primaryKey(),

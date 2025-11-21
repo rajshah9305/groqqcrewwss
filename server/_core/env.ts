@@ -1,7 +1,5 @@
 export const ENV = {
+  groqApiKey: process.env.GROQ_API_KEY ?? "",
   databaseUrl: process.env.DATABASE_URL ?? "",
   isProduction: process.env.NODE_ENV === "production",
-  forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
-  forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
-  groqApiKey: process.env.GROQ_API_KEY ?? process.env.GROQ_API_KEYS ?? "",
 };

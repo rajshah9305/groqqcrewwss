@@ -9,7 +9,7 @@ import { sql } from "drizzle-orm";
 
 async function verifySchema() {
   console.log("[DB Verify] Starting database schema verification...");
-  
+
   try {
     const db = await getDb();
     if (!db) {
@@ -22,13 +22,13 @@ async function verifySchema() {
     // Check if enum types exist
     const enumTypes = [
       "taskType",
-      "status", 
+      "status",
       "priority",
       "role",
       "agentType",
       "format",
       "logLevel",
-      "theme"
+      "theme",
     ];
 
     console.log("[DB Verify] Checking enum types...");
@@ -39,14 +39,19 @@ async function verifySchema() {
         );
         const rows = result.rows as Array<{ typname: string }>;
         if (rows.length === 0) {
-          console.error(`[DB Verify] ❌ Enum type '${enumType}' not found in database`);
+          console.error(
+            `[DB Verify] ❌ Enum type '${enumType}' not found in database`
+          );
           console.error(`[DB Verify] Please run: pnpm db:push`);
           process.exit(1);
         } else {
           console.log(`[DB Verify] ✓ Enum type '${enumType}' exists`);
         }
       } catch (error) {
-        console.error(`[DB Verify] ❌ Error checking enum '${enumType}':`, error);
+        console.error(
+          `[DB Verify] ❌ Error checking enum '${enumType}':`,
+          error
+        );
         process.exit(1);
       }
     }
@@ -58,7 +63,7 @@ async function verifySchema() {
       "agent_configs",
       "task_logs",
       "user_preferences",
-      "saved_results"
+      "saved_results",
     ];
 
     console.log("[DB Verify] Checking tables...");
@@ -69,7 +74,9 @@ async function verifySchema() {
         );
         const rows = result.rows as Array<{ tablename: string }>;
         if (rows.length === 0) {
-          console.error(`[DB Verify] ❌ Table '${table}' not found in database`);
+          console.error(
+            `[DB Verify] ❌ Table '${table}' not found in database`
+          );
           console.error(`[DB Verify] Please run: pnpm db:push`);
           process.exit(1);
         } else {
@@ -87,22 +94,38 @@ async function verifySchema() {
       const result = await db.execute(
         sql`SELECT enumlabel FROM pg_enum WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'taskType') ORDER BY enumsortorder`
       );
-      const enumValues = (result.rows as Array<{ enumlabel: string }>).map((row) => row.enumlabel);
-      const expectedValues = ["summarization", "analysis", "research", "content_generation", "code_generation", "translation", "custom"];
-      
+      const enumValues = (result.rows as Array<{ enumlabel: string }>).map(
+        row => row.enumlabel
+      );
+      const expectedValues = [
+        "summarization",
+        "analysis",
+        "research",
+        "content_generation",
+        "code_generation",
+        "translation",
+        "custom",
+      ];
+
       console.log(`[DB Verify] Found enum values: ${enumValues.join(", ")}`);
-      console.log(`[DB Verify] Expected enum values: ${expectedValues.join(", ")}`);
-      
+      console.log(
+        `[DB Verify] Expected enum values: ${expectedValues.join(", ")}`
+      );
+
       const missing = expectedValues.filter(v => !enumValues.includes(v));
       const extra = enumValues.filter(v => !expectedValues.includes(v));
-      
+
       if (missing.length > 0) {
-        console.error(`[DB Verify] ❌ Missing enum values: ${missing.join(", ")}`);
+        console.error(
+          `[DB Verify] ❌ Missing enum values: ${missing.join(", ")}`
+        );
         console.error(`[DB Verify] Please run: pnpm db:push`);
         process.exit(1);
       }
       if (extra.length > 0) {
-        console.warn(`[DB Verify] ⚠️  Extra enum values found: ${extra.join(", ")}`);
+        console.warn(
+          `[DB Verify] ⚠️  Extra enum values found: ${extra.join(", ")}`
+        );
       }
       console.log(`[DB Verify] ✓ All required enum values exist`);
     } catch (error) {
@@ -123,4 +146,3 @@ async function verifySchema() {
 }
 
 verifySchema();
-
