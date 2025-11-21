@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { ENV } from "./_core/env";
@@ -38,6 +39,9 @@ const PYTHON_VENV_PATH = path.join(
   isWindows ? "Scripts" : "bin",
   isWindows ? "python.exe" : "python"
 );
+
+// Fallback to system python if venv doesn't exist
+const SYSTEM_PYTHON = isWindows ? "python" : "python3";
 const CREWAI_SERVICE_PATH = path.join(__dirname, "crewai_service.py");
 
 export async function executeCrewAITask(
@@ -54,13 +58,17 @@ export async function executeCrewAITask(
 
     const configJson = JSON.stringify(taskConfig);
 
+    // Try venv python first, fallback to system python
+    const pythonPath = fs.existsSync(PYTHON_VENV_PATH) ? PYTHON_VENV_PATH : SYSTEM_PYTHON;
+    
     const pythonProcess = spawn(
-      PYTHON_VENV_PATH,
+      pythonPath,
       [CREWAI_SERVICE_PATH, configJson],
       {
         env: {
           ...process.env,
           GROQ_API_KEY: ENV.groqApiKey,
+          OPENAI_API_KEY: "dummy-key-to-disable-openai",
         },
       }
     );

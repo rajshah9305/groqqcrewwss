@@ -40,19 +40,19 @@ export interface MOAResult {
 const DEFAULT_LAYER_AGENTS: LayerAgentConfig[] = [
   {
     name: "Refiner",
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     systemPrompt:
       "You are a refinement agent. Review the given response and improve it by enhancing clarity, accuracy, and completeness. Provide an improved version that maintains the original intent while being more polished.",
   },
   {
     name: "Enhancer",
-    model: "llama-3.1-8b-instant",
+    model: "openai/gpt-oss-120b",
     systemPrompt:
       "You are an enhancement agent. Take the provided response and add valuable details, examples, or context that would make it more helpful and comprehensive.",
   },
   {
     name: "Validator",
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     systemPrompt:
       "You are a validation agent. Review the response for accuracy, consistency, and coherence. Provide a final polished version that is factually correct and well-structured.",
   },
@@ -67,7 +67,7 @@ export async function* streamMOA(
   config: MOAConfig = {}
 ): AsyncGenerator<{ type: "initial" | "layer" | "final"; content: string; layer?: number; agentName?: string }, void, unknown> {
   const {
-    mainModel = "llama-3.3-70b-versatile",
+    mainModel = "openai/gpt-oss-120b",
     numCycles = 2,
     layerAgents = DEFAULT_LAYER_AGENTS,
     temperature = 70,
@@ -138,7 +138,7 @@ export async function executeMOA(
   config: MOAConfig = {}
 ): Promise<MOAResult> {
   const {
-    mainModel = "llama-3.3-70b-versatile",
+    mainModel = "openai/gpt-oss-120b",
     numCycles = 2,
     layerAgents = DEFAULT_LAYER_AGENTS,
     temperature = 70,

@@ -497,7 +497,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* MOA (Mixture of Agents) Toggle */}
-                  <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-50/50 rounded-xl border border-purple-200 shadow-sm">
+                  <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-50/50 rounded-xl border border-orange-200 shadow-sm">
                     <div className="flex items-start gap-3">
                       <input
                         id="useMOA"
@@ -508,14 +508,14 @@ export default function Dashboard() {
                           if (e.target.checked) setMultiAgent(false);
                         }}
                         disabled={multiAgent}
-                        className="mt-0.5 w-4 h-4 rounded border-gray-300 text-purple-500 focus:ring-purple-500 focus:ring-2 cursor-pointer disabled:opacity-50"
+                        className="mt-0.5 w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500 focus:ring-2 cursor-pointer disabled:opacity-50"
                       />
                       <div className="flex-1">
                         <Label
                           htmlFor="useMOA"
                           className="text-xs font-semibold text-black cursor-pointer flex items-center gap-2"
                         >
-                          <Sparkles className="w-4 h-4 text-purple-500" />
+                          <Sparkles className="w-4 h-4 text-orange-500" />
                           Mixture of Agents (MOA)
                         </Label>
                         <p className="text-xs text-gray-600 mt-1 leading-relaxed">

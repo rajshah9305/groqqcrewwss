@@ -6,7 +6,15 @@ import os
 import sys
 import json
 from typing import List, Dict, Any
-from crewai import Agent, Task, Crew, Process, LLM
+
+try:
+    from crewai import Agent, Task, Crew, Process, LLM
+except ImportError as e:
+    print(json.dumps({
+        "success": False,
+        "error": f"CrewAI not installed: {str(e)}. Please run: pip install -r requirements.txt"
+    }), file=sys.stdout)
+    sys.exit(1)
 
 # Get Groq API key
 groq_api_key = os.getenv("GROQ_API_KEY")
@@ -20,8 +28,6 @@ if not os.getenv("OPENAI_API_KEY"):
 
 def create_groq_llm(temperature: float = 0.7) -> LLM:
     """Create a CrewAI LLM instance configured for Groq"""
-    # Use litellm format for Groq - litellm supports groq/ prefix
-    # Model format: groq/<model-name> or use groq native format
     return LLM(
         model="groq/openai/gpt-oss-120b",
         api_key=groq_api_key,

@@ -21,7 +21,7 @@ export async function* streamGroqCompletion(
   const {
     temperature = 0.7,
     maxTokens = 8192,
-    model = "llama-3.3-70b-versatile",
+    model = "openai/gpt-oss-120b",
   } = options;
 
   try {
@@ -56,7 +56,7 @@ export async function getGroqCompletion(
   const {
     temperature = 0.7,
     maxTokens = 8192,
-    model = "llama-3.3-70b-versatile",
+    model = "openai/gpt-oss-120b",
   } = options;
 
   try {
